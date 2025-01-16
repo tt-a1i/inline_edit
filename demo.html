@@ -1,504 +1,563 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editor Demo</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #f0f2f5;
-        }
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Editor Demo</title>
+		<style>
+			body {
+				margin: 0;
+				padding: 0;
+				background-color: #f0f2f5;
+			}
 
-        .editor-container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: white;
-            min-height: 100vh;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
+			.editor-container {
+				max-width: 800px;
+				margin: 0 auto;
+				padding: 20px;
+				background-color: white;
+				min-height: 100vh;
+				box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+			}
 
-        .editor-toolbar {
-            background-color: #fff;
-            border-bottom: 1px solid #ddd;
-            padding: 10px;
-            margin-bottom: 20px;
-            display: flex;
-            gap: 10px;
-        }
+			.editor-toolbar {
+				background-color: #fff;
+				border-bottom: 1px solid #ddd;
+				padding: 10px;
+				margin-bottom: 20px;
+				display: flex;
+				gap: 10px;
+			}
 
-        .editor-toolbar button {
-            padding: 5px 10px;
-            border: 1px solid #ddd;
-            background: #fff;
-            border-radius: 4px;
-            cursor: pointer;
-            min-width: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
+			.editor-toolbar button {
+				padding: 5px 10px;
+				border: 1px solid #ddd;
+				background: #fff;
+				border-radius: 4px;
+				cursor: pointer;
+				min-width: 40px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				transition: all 0.2s;
+			}
 
-        .editor-toolbar button:hover {
-            background-color: #f0f0f0;
-        }
+			.editor-toolbar button:hover {
+				background-color: #f0f0f0;
+			}
 
-        .editor-toolbar button.active {
-            background-color: #e3e3e3;
-            border-color: #999;
-        }
+			.editor-toolbar button.active {
+				background-color: #e3e3e3;
+				border-color: #999;
+			}
 
-        .editor-toolbar button i {
-            font-style: normal;
-            font-weight: bold;
-            font-size: 14px;
-        }
+			.editor-toolbar button i {
+				font-style: normal;
+				font-weight: bold;
+				font-size: 14px;
+			}
 
-        .editor-content {
-            padding: 20px;
-            position: relative; /* 添加相对定位 */
-        }
+			.editor-content {
+				padding: 20px;
+				position: relative; /* 添加相对定位 */
+			}
 
-        .editor-title {
-            font-size: 24px;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #eee;
-            outline: none; /* 移除默认的焦点边框 */
-        }
+			.editor-title {
+				font-size: 24px;
+				margin-bottom: 20px;
+				padding-bottom: 10px;
+				border-bottom: 1px solid #eee;
+				outline: none; /* 移除默认的焦点边框 */
+			}
 
-        .editor-title:hover {
-            background-color: #f8f9fa;
-        }
+			.editor-title:hover {
+				background-color: #f8f9fa;
+			}
 
-        .editor-title:focus {
-            background-color: #fff;
-            border-bottom: 2px solid #2196F3;
-        }
+			.editor-title:focus {
+				background-color: #fff;
+				border-bottom: 2px solid #2196f3;
+			}
 
-        .editor-title[placeholder]:empty:before {
-            content: attr(placeholder);
-            color: #999;
-            cursor: text;
-        }
+			.editor-title[placeholder]:empty:before {
+				content: attr(placeholder);
+				color: #999;
+				cursor: text;
+			}
 
-        /* 保持现有的选择工具栏和AI回答样式 */
-        #selection-toolbar {
-            background-color: #f9f9f9;
-            border: 1px solid #ddd;
-            padding: 10px;
-            border-radius: 4px;
-            display: flex;
-            position: absolute;
-            z-index: 1000;
-            box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.2);
-            box-sizing: border-box;
-            width: calc(100% - 40px); /* 与编辑器内容区域等宽 */
-            left: 20px;
-            margin-bottom: 0;
-        }
+			/* 保持现有的选择工具栏和AI回答样式 */
+			#selection-toolbar {
+				background-color: #f9f9f9;
+				border: 1px solid #ddd;
+				padding: 10px;
+				border-radius: 4px;
+				display: flex;
+				position: absolute;
+				z-index: 1000;
+				box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.2);
+				box-sizing: border-box;
+				width: calc(100% - 40px); /* 与编辑器内容区域等宽 */
+				left: 20px;
+				margin-bottom: 0;
+			}
 
-        #selection-toolbar button {
-            margin: 0 5px;
-        }
+			#selection-toolbar button {
+				margin: 0 5px;
+			}
 
-        .highlight {
-            background-color: #ffff99;
-        }
+			.highlight {
+				background-color: #ffff99;
+			}
 
-        #ai-answer-container {
-            display: none; /* 默认隐藏 */
-            background-color: #f1f1f1;
-            border: 1px solid #ccc;
-            padding: 15px;
-            border-radius: 5px;
-            position: absolute;
-            width: calc(100% - 40px); /* 与编辑器内容区域等宽 */
-            left: 20px;
-            box-sizing: border-box;
-            margin-top: 10px;
-            z-index: 999;
-        }
+			#ai-answer-container {
+				display: none; /* 默认隐藏 */
+				background-color: #f1f1f1;
+				border: 1px solid #ccc;
+				padding: 15px;
+				border-radius: 5px;
+				position: absolute;
+				width: calc(100% - 40px); /* 与编辑器内容区域等宽 */
+				left: 20px;
+				box-sizing: border-box;
+				margin-top: 10px;
+				z-index: 999;
+			}
 
-        .typing-cursor {
-            display: inline-block;
-            width: 2px;
-            height: 15px;
-            background: #333;
-            margin-left: 2px;
-            animation: blink 1s infinite;
-        }
+			.typing-cursor {
+				display: inline-block;
+				width: 2px;
+				height: 15px;
+				background: #333;
+				margin-left: 2px;
+				animation: blink 1s infinite;
+			}
 
-        @keyframes blink {
-            50% { opacity: 0 }
-        }
+			@keyframes blink {
+				50% {
+					opacity: 0;
+				}
+			}
 
-        .insert-button {
-            display: block;
-            margin-top: 10px;
-            padding: 8px 15px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
+			.insert-button {
+				display: block;
+				margin-top: 10px;
+				padding: 8px 15px;
+				background-color: #4caf50;
+				color: white;
+				border: none;
+				border-radius: 4px;
+				cursor: pointer;
+			}
 
-        .insert-button:hover {
-            background-color: #45a049;
-        }
+			.insert-button:hover {
+				background-color: #45a049;
+			}
 
-        .selected-text {
-            background-color: #e6f3ff;
-        }
+			.selected-text {
+				background-color: #e6f3ff;
+			}
 
-        .button-container {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
+			.button-container {
+				display: flex;
+				gap: 10px;
+				margin-top: 10px;
+			}
 
-        .regenerate-button {
-            padding: 8px 15px;
-            background-color: #2196F3;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
+			.regenerate-button {
+				padding: 8px 15px;
+				background-color: #2196f3;
+				color: white;
+				border: none;
+				border-radius: 4px;
+				cursor: pointer;
+			}
 
-        .regenerate-button:hover {
-            background-color: #1976D2;
-        }
+			.regenerate-button:hover {
+				background-color: #1976d2;
+			}
 
-        .highlight-selection {
-            background-color: #fff3cd;
-            border-radius: 2px;
-            padding: 2px 0;
-            transition: background-color 0.3s ease;
-        }
+			.highlight-selection {
+				background-color: #fff3cd;
+				border-radius: 2px;
+				padding: 2px 0;
+				transition: background-color 0.3s ease;
+				display: inline-block; /* 修改为行内块级元素 */
+				width: 100%; /* 确保宽度充满容器 */
+			}
 
-        .highlight-selection.active {
-            background-color: #ffe69c;
-        }
+			.highlight-selection p {
+				margin: 0; /* 保持段落间距 */
+				padding: 5px 0;
+			}
 
-        .editor-toolbar button i.icon {
-            font-family: Arial, sans-serif;
-            font-style: normal;
-            font-size: 16px;
-            transform: scaleX(0.8);
-            display: inline-block;
-        }
+			.editor-toolbar button i.icon {
+				font-family: Arial, sans-serif;
+				font-style: normal;
+				font-size: 16px;
+				transform: scaleX(0.8);
+				display: inline-block;
+			}
 
-        .editor-toolbar button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
+			.editor-toolbar button:disabled {
+				opacity: 0.5;
+				cursor: not-allowed;
+			}
 
-        .format-select {
-            height: 32px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 0 8px;
-            cursor: pointer;
-            background-color: #fff;
-            min-width: 120px;
-            font-size: 14px;
-        }
+			.format-select {
+				height: 32px;
+				border: 1px solid #ddd;
+				border-radius: 4px;
+				padding: 0 8px;
+				cursor: pointer;
+				background-color: #fff;
+				min-width: 120px;
+				font-size: 14px;
+			}
 
-        .format-select:hover {
-            background-color: #f0f0f0;
-        }
+			.format-select:hover {
+				background-color: #f0f0f0;
+			}
 
-        .format-select option {
-            padding: 8px;
-        }
+			.format-select option {
+				padding: 8px;
+			}
 
-        /* 添加标题样式 */
-        .h1 {
-            font-size: 28px;
-            font-weight: bold;
-            margin: 20px 0;
-        }
+			/* 添加标题样式 */
+			.h1 {
+				font-size: 28px;
+				font-weight: bold;
+				margin: 20px 0;
+			}
 
-        .h2 {
-            font-size: 24px;
-            font-weight: bold;
-            margin: 16px 0;
-        }
+			.h2 {
+				font-size: 24px;
+				font-weight: bold;
+				margin: 16px 0;
+			}
 
-        .h3 {
-            font-size: 20px;
-            font-weight: bold;
-            margin: 14px 0;
-        }
+			.h3 {
+				font-size: 20px;
+				font-weight: bold;
+				margin: 14px 0;
+			}
 
-        #editable-content {
-            outline: none;
-        }
-    </style>
-</head>
-<body>
-    <div class="editor-container">
-        <div class="editor-toolbar">
-            <select class="format-select" onchange="formatText(this.value)" title="格式">
-                <option value="">正文</option>
-                <option value="h1">H1</option>
-                <option value="h2">H2</option>
-                <option value="h3">H3</option>
-            </select>
-            <button onclick="undo()" id="undo-btn" title="撤销"><i class="icon">↶</i></button>
-            <button onclick="redo()" id="redo-btn" title="重做"><i class="icon">↷</i></button>
-            <button onclick="formatBold()" id="bold-btn"><i>B</i></button>
-            <button onclick="formatItalic()" id="italic-btn"><i style="font-style: italic;">I</i></button>
-            <button onclick="formatUnderline()" id="underline-btn"><i style="text-decoration: underline;">U</i></button>
-        </div>
-        <div class="editor-content">
-            <div class="editor-title" 
-                 contenteditable="true" 
-                 placeholder="请输入文档标题"
-                 spellcheck="false">示例文档标题</div>
-            <div id="editable-content" contenteditable="true">
-                <p>
-                    这是一个示例文本。请选中部分文本后，在其上方会出现一个悬浮的工具栏，您可以点击"生成内容"按钮，在光标位置插入新的内容。
-                </p>
-                <p>
-                    这是一个示例文本。请选中部分文本后，在其上方会出现一个悬浮的工具栏，您可以点击"生成内容"按钮，在光标位置插入新的内容。
-                </p>
-                <p>
-                    这是一个示例文本。请选中部分文本后，在其上方会出现一个悬浮的工具栏，您可以点击"生成内容"按钮，在光标位置插入新的内容。
-                </p>
-            </div>
-        </div>
-    </div>
+			#editable-content {
+				outline: none;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="editor-container">
+			<div class="editor-toolbar">
+				<select
+					class="format-select"
+					onchange="formatText(this.value)"
+					title="格式"
+				>
+					<option value="">正文</option>
+					<option value="h1">H1</option>
+					<option value="h2">H2</option>
+					<option value="h3">H3</option>
+				</select>
+				<button onclick="undo()" id="undo-btn" title="撤销">
+					<i class="icon">↶</i>
+				</button>
+				<button onclick="redo()" id="redo-btn" title="重做">
+					<i class="icon">↷</i>
+				</button>
+				<button onclick="formatBold()" id="bold-btn"><i>B</i></button>
+				<button onclick="formatItalic()" id="italic-btn">
+					<i style="font-style: italic">I</i>
+				</button>
+				<button onclick="formatUnderline()" id="underline-btn">
+					<i style="text-decoration: underline">U</i>
+				</button>
+			</div>
+			<div class="editor-content">
+				<div
+					class="editor-title"
+					contenteditable="true"
+					placeholder="请输入文档标题"
+					spellcheck="false"
+				>
+					示例文档标题
+				</div>
+				<div id="editable-content" contenteditable="true">
+					<p>
+						这是一个示例文本。请选中部分文本后，在其上方会出现一个悬浮的工具栏，您可以点击"生成内容"按钮，在光标位置插入新的内容。
+					</p>
+					<p>
+						这是一个示例文本。请选中部分文本后，在其上方会出现一个悬浮的工具栏，您可以点击"生成内容"按钮，在光标位置插入新的内容。
+					</p>
+					<p>
+						这是一个示例文本。请选中部分文本后，在其上方会出现一个悬浮的工具栏，您可以点击"生成内容"按钮，在光标位置插入新的内容。
+					</p>
+				</div>
+			</div>
+		</div>
 
-    <!-- AI回答的容器 -->
-    <div id="ai-answer-container"></div>
+		<!-- AI回答的容器 -->
+		<div id="ai-answer-container"></div>
 
-    <script>
-        // 添加基础编辑器功能
-        function formatBold() {
-            const editableContent = document.getElementById('editable-content');
-            editableContent.focus(); // 确保焦点在编辑区域
-            document.execCommand('bold', false);
-            updateFormatButtons();
-        }
+		<script>
+			// 添加基础编辑器功能
+			function formatBold() {
+				const editableContent = document.getElementById("editable-content");
+				editableContent.focus(); // 确保焦点在编辑区域
+				document.execCommand("bold", false);
+				updateFormatButtons();
+			}
 
-        function formatItalic() {
-            const editableContent = document.getElementById('editable-content');
-            editableContent.focus();
-            document.execCommand('italic', false);
-            updateFormatButtons();
-        }
+			function formatItalic() {
+				const editableContent = document.getElementById("editable-content");
+				editableContent.focus();
+				document.execCommand("italic", false);
+				updateFormatButtons();
+			}
 
-        function formatUnderline() {
-            const editableContent = document.getElementById('editable-content');
-            editableContent.focus();
-            document.execCommand('underline', false);
-            updateFormatButtons();
-        }
+			function formatUnderline() {
+				const editableContent = document.getElementById("editable-content");
+				editableContent.focus();
+				document.execCommand("underline", false);
+				updateFormatButtons();
+			}
 
-        // 添加格式按钮状态更新函数
-        function updateFormatButtons() {
-            const commands = {
-                'bold-btn': 'bold',
-                'italic-btn': 'italic',
-                'underline-btn': 'underline'
-            };
+			// 添加格式按钮状态更新函数
+			function updateFormatButtons() {
+				const commands = {
+					"bold-btn": "bold",
+					"italic-btn": "italic",
+					"underline-btn": "underline",
+				};
 
-            for (const [btnId, command] of Object.entries(commands)) {
-                const button = document.getElementById(btnId);
-                if (document.queryCommandState(command)) {
-                    button.classList.add('active');
-                } else {
-                    button.classList.remove('active');
-                }
-            }
-        }
+				for (const [btnId, command] of Object.entries(commands)) {
+					const button = document.getElementById(btnId);
+					if (document.queryCommandState(command)) {
+						button.classList.add("active");
+					} else {
+						button.classList.remove("active");
+					}
+				}
+			}
 
-        // 监听选择变化，更新按钮状态
-        document.getElementById('editable-content').addEventListener('selectionchange', function() {
-            updateFormatButtons();
-        });
+			// 监听选择变化，更新按钮状态
+			document
+				.getElementById("editable-content")
+				.addEventListener("selectionchange", function () {
+					updateFormatButtons();
+				});
 
-        // 监听编辑器内容变化
-        document.getElementById('editable-content').addEventListener('input', function() {
-            updateFormatButtons();
-            updateUndoRedoState();
-        });
+			// 监听编辑器内容变化
+			document
+				.getElementById("editable-content")
+				.addEventListener("input", function () {
+					updateFormatButtons();
+					updateUndoRedoState();
+				});
 
-        // 替换原有的toggleButtonState函数
-        function toggleButtonState(buttonId) {
-            updateFormatButtons();
-        }
+			// 替换原有的toggleButtonState函数
+			function toggleButtonState(buttonId) {
+				updateFormatButtons();
+			}
 
-        // 添加撤销重做功能
-        function undo() {
-            document.execCommand('undo', false, null);
-            updateUndoRedoState();
-        }
+			// 添加撤销重做功能
+			function undo() {
+				document.execCommand("undo", false, null);
+				updateUndoRedoState();
+			}
 
-        function redo() {
-            document.execCommand('redo', false, null);
-            updateUndoRedoState();
-        }
+			function redo() {
+				document.execCommand("redo", false, null);
+				updateUndoRedoState();
+			}
 
-        // 更新撤销重做按钮状态
-        function updateUndoRedoState() {
-            const undoBtn = document.getElementById('undo-btn');
-            const redoBtn = document.getElementById('redo-btn');
-            
-            undoBtn.disabled = !document.queryCommandEnabled('undo');
-            redoBtn.disabled = !document.queryCommandEnabled('redo');
-        }
+			// 更新撤销重做按钮状态
+			function updateUndoRedoState() {
+				const undoBtn = document.getElementById("undo-btn");
+				const redoBtn = document.getElementById("redo-btn");
 
-        // 在编辑器内容变化时更新按钮状态
-        document.getElementById('editable-content').addEventListener('input', updateUndoRedoState);
+				undoBtn.disabled = !document.queryCommandEnabled("undo");
+				redoBtn.disabled = !document.queryCommandEnabled("redo");
+			}
 
-        // 初始化按钮状态
-        // document.addEventListener('DOMContentLoaded', updateUndoRedoState);
+			// 在编辑器内容变化时更新按钮状态
+			document
+				.getElementById("editable-content")
+				.addEventListener("input", updateUndoRedoState);
 
-        // 监听鼠标弹起事件，检测选区
-        document.addEventListener("mouseup", function (event) {
-            // 获取当前页面上的文本选择对象
-            const selection = window.getSelection();
-            // 没有选中内容时（比如只是鼠标点击一下），isCollapsed为true，选中内容后为false
-            if (!selection.isCollapsed) {
-                // 创建range对象的副本，避免直接引用
-                const range = selection.getRangeAt(0).cloneRange();
-                // 存储为全局变量
-                window.selectedRange = range;
-                showToolbar(range);
-            }
-        });
+			// 初始化按钮状态
+			// document.addEventListener('DOMContentLoaded', updateUndoRedoState);
 
-        // 显示工具栏
-        function showToolbar(range) {
-            const toolbar = window.selectionToolbar || createToolbar();
-            const editorContent = document.querySelector('.editor-content');
-            
-            // 每次选择都创建新的高亮
-            if (window.selectedSpan) {
-                window.selectedSpan.replaceWith(window.selectedSpan.textContent);
-            }
-            
-            // 给选中的文本添加高亮样式
-            const span = document.createElement('span');
-            span.className = 'highlight-selection';
-            range.surroundContents(span);
-            window.selectedSpan = span;
+			// 监听鼠标弹起事件，检测选区
+			document.addEventListener("mouseup", function (event) {
+				// 获取当前页面上的文本选择对象
+				const selection = window.getSelection();
+				// 没有选中内容时（比如只是鼠标点击一下），isCollapsed为true，选中内容后为false
+				if (!selection.isCollapsed) {
+					// 创建range对象的副本，避免直接引用
+					const range = selection.getRangeAt(0).cloneRange();
+					// 存储为全局变量
+					window.selectedRange = range;
+					showToolbar(range);
+				}
+			});
 
-            const rect = range.getBoundingClientRect();
-            const editorRect = editorContent.getBoundingClientRect();
-            
-            // 计算相对于编辑器内容区域的位置
-            const topPosition = rect.bottom - editorRect.top + editorContent.scrollTop;
-            toolbar.style.top = `${topPosition + 5}px`;
-            
-            // 将工具栏移动到编辑器容器内
-            editorContent.appendChild(toolbar);
-            toolbar.style.display = "flex";
-        }
+			// 修改显示工具栏函数
+			function showToolbar(range) {
+				const toolbar = window.selectionToolbar || createToolbar();
+				const editorContent = document.querySelector('.editor-content');
+				
+				// 清除之前的高亮
+				if (window.selectedSpan) {
+					// 保存原始段落结构，而不是直接替换内容
+					const originalContent = window.selectedSpan;
+					const parent = originalContent.parentNode;
+					while (originalContent.firstChild) {
+						parent.insertBefore(originalContent.firstChild, originalContent);
+					}
+					originalContent.remove();
+				}
+				
+				try {
+					// 给选中的文本添加高亮样式
+					const span = document.createElement('span');
+					span.className = 'highlight-selection';
+					
+					// 处理选区内容
+					const clone = range.cloneContents();
+					
+					// 保持段落结构
+					if (clone.querySelectorAll('p').length === 0) {
+						// 如果没有段落标签，创建一个
+						const p = document.createElement('p');
+						while (clone.firstChild) {
+							p.appendChild(clone.firstChild);
+						}
+						span.appendChild(p);
+					} else {
+						// 如果有段落标签，直接使用
+						while (clone.firstChild) {
+							span.appendChild(clone.firstChild);
+						}
+					}
+					
+					range.deleteContents();
+					range.insertNode(span);
+					
+					window.selectedSpan = span;
+				} catch (e) {
+					console.error('Error highlighting selection:', e);
+					return;
+				}
 
-        // 新增创建工具栏函数
-        function createToolbar() {
-            const toolbar = document.createElement("div");
-            toolbar.id = "selection-toolbar";
+				const rect = range.getBoundingClientRect();
+				const editorRect = editorContent.getBoundingClientRect();
+				
+				// 计算工具栏位置
+				const topPosition = rect.bottom - editorRect.top + editorContent.scrollTop;
+				toolbar.style.top = `${topPosition + 5}px`;
+				
+				editorContent.appendChild(toolbar);
+				toolbar.style.display = "flex";
+			}
 
-            // 输入框
-            const input = document.createElement("input");
-            input.type = "text";
-            input.style.flexGrow = "1";
-            input.style.padding = "5px";
-            input.style.border = "1px solid #ccc";
-            input.style.borderRadius = "3px";
-            
-            // 阻止输入框点击时清除选区
-            input.addEventListener('mousedown', function(e) {
-                e.stopPropagation();
-            });
-            
-            // 当输入框获得焦点时，添加active类
-            input.addEventListener('focus', function() {
-                if (window.selectedSpan) {
-                    window.selectedSpan.classList.add('active');
-                }
-            });
+			// 新增创建工具栏函数
+			function createToolbar() {
+				const toolbar = document.createElement("div");
+				toolbar.id = "selection-toolbar";
 
-            // 当输入框失去焦点时，移除active类
-            input.addEventListener('blur', function() {
-                if (window.selectedSpan) {
-                    window.selectedSpan.classList.remove('active');
-                }
-            });
+				// 输入框
+				const input = document.createElement("input");
+				input.type = "text";
+				input.style.flexGrow = "1";
+				input.style.padding = "5px";
+				input.style.border = "1px solid #ccc";
+				input.style.borderRadius = "3px";
 
-            toolbar.appendChild(input);
+				// 阻止输入框点击时清除选区
+				input.addEventListener("mousedown", function (e) {
+					e.stopPropagation();
+				});
 
-            // 发送按钮
-            const sendButton = document.createElement("button");
-            sendButton.innerText = "发送";
-            sendButton.style.marginLeft = "5px";
-            sendButton.style.padding = "5px 10px";
-            sendButton.style.border = "1px solid #ccc";
-            sendButton.style.borderRadius = "3px";
-            
-            sendButton.addEventListener("click", function (e) {
-                e.stopPropagation();
-                const inputValue = input.value;
-                displayAIAnswer(inputValue);
-            });
+				// 当输入框获得焦点时，添加active类
+				input.addEventListener("focus", function () {
+					if (window.selectedSpan) {
+						window.selectedSpan.classList.add("active");
+					}
+				});
 
-            toolbar.appendChild(sendButton);
-            window.selectionToolbar = toolbar;
-            return toolbar;
-        }
+				// 当输入框失去焦点时，移除active类
+				input.addEventListener("blur", function () {
+					if (window.selectedSpan) {
+						window.selectedSpan.classList.remove("active");
+					}
+				});
 
-        // 添加打字机效果函数
-        function typeWriter(element, text, speed = 50) {
-            let index = 0;
-            element.innerHTML += '<span class="typing-cursor"></span><br>';
-            
-            return new Promise(resolve => {
-                function type() {
-                    if (index < text.length) {
-                        const char = text.charAt(index);
-                        const cursor = element.querySelector('.typing-cursor');
-                        cursor.insertAdjacentText('beforebegin', char);
-                        index++;
-                        setTimeout(type, speed);
-                    } else {
-                        element.querySelector('.typing-cursor').remove();
-                        resolve();
-                    }
-                }
-                type();
-            });
-        }
+				toolbar.appendChild(input);
 
-        // 显示AI回答
-        async function displayAIAnswer(inputValue) {
-            const toolbar = window.selectionToolbar;
-            const answerContainer = document.getElementById("ai-answer-container");
-            const editorContent = document.querySelector('.editor-content');
-            
-            // 确保答案容器在编辑器内
-            if (answerContainer.parentElement !== editorContent) {
-                editorContent.appendChild(answerContainer);
-            }
+				// 发送按钮
+				const sendButton = document.createElement("button");
+				sendButton.innerText = "发送";
+				sendButton.style.marginLeft = "5px";
+				sendButton.style.padding = "5px 10px";
+				sendButton.style.border = "1px solid #ccc";
+				sendButton.style.borderRadius = "3px";
 
-            // 计算新位置：工具栏底部 + 间距
-            const toolbarRect = toolbar.getBoundingClientRect();
-            const editorRect = editorContent.getBoundingClientRect();
-            const topPosition = toolbarRect.height + parseInt(toolbar.style.top) + 10;
-            
-            answerContainer.style.top = `${topPosition}px`;
-            answerContainer.style.display = "block";
-            
-            // 创建回答内容容器，添加按钮容器
-            answerContainer.innerHTML = `
+				sendButton.addEventListener("click", function (e) {
+					e.stopPropagation();
+					const inputValue = input.value;
+					displayAIAnswer(inputValue);
+				});
+
+				toolbar.appendChild(sendButton);
+				window.selectionToolbar = toolbar;
+				return toolbar;
+			}
+
+			// 添加打字机效果函数
+			function typeWriter(element, text, speed = 50) {
+				let index = 0;
+				element.innerHTML += '<span class="typing-cursor"></span><br>';
+
+				return new Promise((resolve) => {
+					function type() {
+						if (index < text.length) {
+							const char = text.charAt(index);
+							const cursor = element.querySelector(".typing-cursor");
+							cursor.insertAdjacentText("beforebegin", char);
+							index++;
+							setTimeout(type, speed);
+						} else {
+							element.querySelector(".typing-cursor").remove();
+							resolve();
+						}
+					}
+					type();
+				});
+			}
+
+			// 显示AI回答
+			async function displayAIAnswer(inputValue) {
+				const toolbar = window.selectionToolbar;
+				const answerContainer = document.getElementById("ai-answer-container");
+				const editorContent = document.querySelector(".editor-content");
+
+				// 确保答案容器在编辑器内
+				if (answerContainer.parentElement !== editorContent) {
+					editorContent.appendChild(answerContainer);
+				}
+
+				// 计算新位置：工具栏底部 + 间距
+				const toolbarRect = toolbar.getBoundingClientRect();
+				const editorRect = editorContent.getBoundingClientRect();
+				const topPosition =
+					toolbarRect.height + parseInt(toolbar.style.top) + 10;
+
+				answerContainer.style.top = `${topPosition}px`;
+				answerContainer.style.display = "block";
+
+				// 创建回答内容容器，添加按钮容器
+				answerContainer.innerHTML = `
                 <strong>AI的回答:</strong>
                 <p id="ai-response"></p>
                 <div class="button-container">
@@ -506,157 +565,176 @@
                     <button id="insert-answer" class="insert-button" style="display: none;">插入到文档</button>
                 </div>
             `;
-            
-            await generateAIResponse(inputValue);
-        }
 
-        // 生成AI响应
-        async function generateAIResponse(inputValue) {
-            const responseElement = document.getElementById("ai-response");
-            responseElement.innerHTML = ''; // 清空现有内容
-            
-            // 模拟AI响应内容
-            const aiResponse = [
-                "让我想一想...",
-                "基于您的输入，我认为...",
-                `关于"${inputValue}"，我的建议是...`,
-                "希望这个回答对您有帮助。"
-            ];
-            
-            // 逐段显示回答
-            for (const text of aiResponse) {
-                await typeWriter(responseElement, text);
-                await new Promise(resolve => setTimeout(resolve, 500)); // 段落之间的停顿
-            }
+				await generateAIResponse(inputValue);
+			}
 
-            // 显示按钮并添加事件监听
-            const insertButton = document.getElementById('insert-answer');
-            const regenerateButton = document.getElementById('regenerate-answer');
-            
-            insertButton.style.display = 'block';
-            regenerateButton.style.display = 'block';
-            
-            insertButton.addEventListener('click', function() {
-                insertAIResponse(responseElement.innerText);
-            });
-            
-            regenerateButton.addEventListener('click', async function() {
-                await generateAIResponse(inputValue);
-            });
-        }
+			// 生成AI响应
+			async function generateAIResponse(inputValue) {
+				const responseElement = document.getElementById("ai-response");
+				responseElement.innerHTML = ""; // 清空现有内容
 
-        // 插入AI回答
-        function insertAIResponse(aiText) {
-            if (window.selectedRange && window.selectedSpan) {
-                // 创建新的文本节点
-                const text = document.createTextNode('\n' + aiText);
-                
-                // 在选中文本后插入AI回答
-                window.selectedSpan.after(text);
-                
-                // 保持高亮样式，只移除active类
-                window.selectedSpan.classList.remove('active');
-                
-                // 隐藏工具栏和回答容器
-                window.selectionToolbar.style.display = "none";
-                document.getElementById("ai-answer-container").style.display = "none";
-                
-                // 滚动到插入位置
-                // text.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-        }
+				// 模拟AI响应内容
+				const aiResponse = [
+					"让我想一想...",
+					"基于您的输入，我认为...",
+					`关于"${inputValue}"，我的建议是...`,
+					"希望这个回答对您有帮助。",
+				];
 
-        // 点击页面其他区域时的处理逻辑
-        document.addEventListener("mousedown", function (event) {
-            const toolbar = window.selectionToolbar;
-            const answerContainer = document.getElementById("ai-answer-container");
-            
-            // 检查点击是否在工具栏或AI回答容器之外
-            const clickedOutside = toolbar && 
-                !toolbar.contains(event.target) && 
-                !answerContainer.contains(event.target);
-            
-            if (clickedOutside) {
-                // 清除高亮和隐藏工具栏
-                if (window.selectedSpan) {
-                    window.selectedSpan.replaceWith(window.selectedSpan.textContent);
-                    window.selectedSpan = null;
-                }
-                toolbar.style.display = "none";
-                answerContainer.style.display = "none";
-            }
-        });
+				// 逐段显示回答
+				for (const text of aiResponse) {
+					await typeWriter(responseElement, text);
+					await new Promise((resolve) => setTimeout(resolve, 500)); // 段落之间的停顿
+				}
 
-        // 监听选择变化，更新按钮状态
-        document.getElementById('editable-content').addEventListener('selectionchange', function() {
-            updateFormatButtons();
-        });
+				// 显示按钮并添加事件监听
+				const insertButton = document.getElementById("insert-answer");
+				const regenerateButton = document.getElementById("regenerate-answer");
 
-        // 添加按钮状态切换功能
-        function toggleButtonState(buttonId) {
-            updateFormatButtons();
-        }
+				insertButton.style.display = "block";
+				regenerateButton.style.display = "block";
 
-        // 添加标题处理逻辑
-        const titleElement = document.querySelector('.editor-title');
-        
-        // 防止标题出现换行
-        titleElement.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                this.blur();
-            }
-        });
+				insertButton.addEventListener("click", function () {
+					insertAIResponse(responseElement.innerText);
+				});
 
-        // 标题失去焦点时如果为空，显示占位符
-        titleElement.addEventListener('blur', function() {
-            if (!this.textContent.trim()) {
-                this.innerHTML = '';
-            }
-        });
+				regenerateButton.addEventListener("click", async function () {
+					await generateAIResponse(inputValue);
+				});
+			}
 
-        // 添加格式设置函数
-        function formatText(format) {
-            const selection = window.getSelection();
-            if (!selection.rangeCount) return;
+			// 修改插入AI回答的函数
+			function insertAIResponse(aiText) {
+				if (window.selectedRange && window.selectedSpan) {
+					// 创建新的段落用于AI回答
+					const newP = document.createElement('p');
+					newP.textContent = aiText;
+					
+					// 保持原始内容的段落结构
+					const originalContent = window.selectedSpan;
+					const parent = originalContent.parentNode;
+					
+					// 恢复原始段落
+					while (originalContent.firstChild) {
+						parent.insertBefore(originalContent.firstChild, originalContent);
+					}
+					
+					// 插入AI回答到最后一个段落后
+					const lastOriginalP = window.selectedRange.endContainer.parentElement;
+					if (lastOriginalP && lastOriginalP.tagName === 'P') {
+						lastOriginalP.after(newP);
+					} else {
+						// 如果找不到合适的段落，就插入到选区后面
+						originalContent.after(newP);
+					}
+					
+					// 清理
+					originalContent.remove();
+					window.selectedSpan = null;
+					window.selectionToolbar.style.display = "none";
+					document.getElementById("ai-answer-container").style.display = "none";
+				}
+			}
 
-            const range = selection.getRangeAt(0);
-            const container = range.commonAncestorContainer;
-            
-            if (format) {
-                // 判断是否需要创建新的p标签
-                let targetElement = container;
-                if (container.nodeType === 3) { // 文本节点
-                    targetElement = container.parentNode;
-                }
-                if (targetElement.tagName !== 'P') {
-                    const p = document.createElement('p');
-                    range.surroundContents(p);
-                    targetElement = p;
-                }
-                targetElement.className = format;
-            }
-        }
+			// 点击页面其他区域时的处理逻辑
+			document.addEventListener("mousedown", function (event) {
+				const toolbar = window.selectionToolbar;
+				const answerContainer = document.getElementById("ai-answer-container");
 
-        // 监听选区变化，更新格式下拉框状态
-        document.getElementById('editable-content').addEventListener('mouseup', function() {
-            const selection = window.getSelection();
-            if (!selection.rangeCount) return;
+				// 检查点击是否在工具栏或AI回答容器之外
+				const clickedOutside =
+					toolbar &&
+					!toolbar.contains(event.target) &&
+					!answerContainer.contains(event.target);
 
-            const container = selection.getRangeAt(0).commonAncestorContainer;
-            const formatSelect = document.querySelector('.format-select');
-            
-            // 重置选项
-            formatSelect.value = '';
+				if (clickedOutside) {
+					// 清除高亮和隐藏工具栏
+					if (window.selectedSpan) {
+						window.selectedSpan.replaceWith(window.selectedSpan.textContent);
+						window.selectedSpan = null;
+					}
+					toolbar.style.display = "none";
+					answerContainer.style.display = "none";
+				}
+			});
 
-            // 检查是否有标题格式
-            let element = container.nodeType === 3 ? container.parentNode : container;
-            ['h1', 'h2', 'h3'].forEach(className => {
-                if (element.classList.contains(className)) {
-                    formatSelect.value = className;
-                }
-            });
-        });
-    </script>
-</body>
+			// 监听选择变化，更新按钮状态
+			document
+				.getElementById("editable-content")
+				.addEventListener("selectionchange", function () {
+					updateFormatButtons();
+				});
+
+			// 添加按钮状态切换功能
+			function toggleButtonState(buttonId) {
+				updateFormatButtons();
+			}
+
+			// 添加标题处理逻辑
+			const titleElement = document.querySelector(".editor-title");
+
+			// 防止标题出现换行
+			titleElement.addEventListener("keydown", function (e) {
+				if (e.key === "Enter") {
+					e.preventDefault();
+					this.blur();
+				}
+			});
+
+			// 标题失去焦点时如果为空，显示占位符
+			titleElement.addEventListener("blur", function () {
+				if (!this.textContent.trim()) {
+					this.innerHTML = "";
+				}
+			});
+
+			// 添加格式设置函数
+			function formatText(format) {
+				const selection = window.getSelection();
+				if (!selection.rangeCount) return;
+
+				const range = selection.getRangeAt(0);
+				const container = range.commonAncestorContainer;
+
+				if (format) {
+					// 判断是否需要创建新的p标签
+					let targetElement = container;
+					if (container.nodeType === 3) {
+						// 文本节点
+						targetElement = container.parentNode;
+					}
+					if (targetElement.tagName !== "P") {
+						const p = document.createElement("p");
+						range.surroundContents(p);
+						targetElement = p;
+					}
+					targetElement.className = format;
+				}
+			}
+
+			// 监听选区变化，更新格式下拉框状态
+			document
+				.getElementById("editable-content")
+				.addEventListener("mouseup", function () {
+					const selection = window.getSelection();
+					if (!selection.rangeCount) return;
+
+					const container = selection.getRangeAt(0).commonAncestorContainer;
+					const formatSelect = document.querySelector(".format-select");
+
+					// 重置选项
+					formatSelect.value = "";
+
+					// 检查是否有标题格式
+					let element =
+						container.nodeType === 3 ? container.parentNode : container;
+					["h1", "h2", "h3"].forEach((className) => {
+						if (element.classList.contains(className)) {
+							formatSelect.value = className;
+						}
+					});
+				});
+		</script>
+	</body>
 </html>
