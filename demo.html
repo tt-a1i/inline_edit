@@ -1,22 +1,83 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Demo Page</title>
 		<style>
 			#selection-toolbar {
 				background-color: #f9f9f9;
 				border: 1px solid #ddd;
 				padding: 5px;
 				border-radius: 4px;
-				display: none;
+				display: flex;
 				position: absolute;
 				z-index: 1000;
 				box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.2);
+				width: 100%;
+				box-sizing: border-box;
+				margin-bottom: 10px; /* 添加底部间距 */
 			}
 			#selection-toolbar button {
 				margin: 0 5px;
 			}
 			.highlight {
 				background-color: #ffff99;
+			}
+			#ai-answer-container {
+				display: none; /* 默认隐藏 */
+				background-color: #f1f1f1;
+				border: 1px solid #ccc;
+				padding: 10px;
+				border-radius: 5px;
+				margin-top: 0; /* 移除顶部边距 */
+				max-width: none; /* 移除最大宽度限制 */
+				width: 100%; /* 设置为100%宽度 */
+				box-sizing: border-box;
+				position: absolute; /* 改为绝对定位 */
+			}
+			.typing-cursor {
+				display: inline-block;
+				width: 2px;
+				height: 15px;
+				background: #333;
+				margin-left: 2px;
+				animation: blink 1s infinite;
+			}
+			@keyframes blink {
+				50% { opacity: 0 }
+				}
+			.insert-button {
+				display: block;
+				margin-top: 10px;
+				padding: 8px 15px;
+				background-color: #4CAF50;
+				color: white;
+				border: none;
+				border-radius: 4px;
+				cursor: pointer;
+			}
+			.insert-button:hover {
+				background-color: #45a049;
+				}
+			.selected-text {
+				background-color: #e6f3ff;
+				}
+			.button-container {
+				display: flex;
+				gap: 10px;
+				margin-top: 10px;
+			}
+			.regenerate-button {
+				padding: 8px 15px;
+				background-color: #2196F3;
+				color: white;
+				border: none;
+				border-radius: 4px;
+				cursor: pointer;
+			}
+			.regenerate-button:hover {
+				background-color: #1976D2;
 			}
 		</style>
 	</head>
@@ -33,18 +94,20 @@
 		<p>
 			这是一个示例文本。请选中部分文本后，在其上方会出现一个悬浮的工具栏，您可以点击“生成内容”按钮，在光标位置插入新的内容。
 		</p>
+
+		<!-- AI回答的容器 -->
+		<div id="ai-answer-container"></div>
+
 		<script>
 			// 监听鼠标弹起事件，检测选区
 			document.addEventListener("mouseup", function (event) {
-				//获取当前页面上的文本选择对象
+				// 获取当前页面上的文本选择对象
 				const selection = window.getSelection();
-				console.log("🚀selection:", selection);
-				//没有选中内容时（比如只是鼠标点击一下），isCollapsed为true，选中内容后为false
+				// 没有选中内容时（比如只是鼠标点击一下），isCollapsed为true，选中内容后为false
 				if (!selection.isCollapsed) {
-					//创建range对象的副本，避免直接引用
+					// 创建range对象的副本，避免直接引用
 					const range = selection.getRangeAt(0).cloneRange();
-					console.log("🚀 ~ document.addEventListener ~ range:", range);
-					//存储为全局变量
+					// 存储为全局变量
 					window.selectedRange = range;
 					showToolbar(range);
 				}
@@ -56,14 +119,6 @@
 				if (!window.selectionToolbar) {
 					const toolbar = document.createElement("div");
 					toolbar.id = "selection-toolbar";
-					toolbar.style.display = "flex"; // 使用 flex 布局
-					toolbar.style.alignItems = "center"; // 垂直居中
-					toolbar.style.position = "absolute";
-					toolbar.style.width = "100%"; // 宽度 100%
-					toolbar.style.boxSizing = "border-box"; //包含padding和border
-					toolbar.style.padding = "5px"; // 添加内边距
-					toolbar.style.backgroundColor = "#f0f0f0"; // 添加背景色
-					toolbar.style.border = "1px solid #ccc"; // 添加边框
 
 					// 输入框
 					const input = document.createElement("input");
@@ -72,6 +127,18 @@
 					input.style.padding = "5px";
 					input.style.border = "1px solid #ccc";
 					input.style.borderRadius = "3px";
+					
+					// 阻止输入框点击时清除选区
+					input.addEventListener('mousedown', function(e) {
+						e.stopPropagation();
+					});
+					
+					// 给选中的文本添加高亮样式
+					const span = document.createElement('span');
+					span.className = 'selected-text';
+					window.selectedRange.surroundContents(span);
+					window.selectedSpan = span; // 保存引用以便后续使用
+
 					toolbar.appendChild(input);
 
 					// 发送按钮
@@ -89,8 +156,7 @@
 						const inputValue = input.value;
 						// 执行发送操作的逻辑，inputValue 是输入框中的内容
 						console.log("发送内容:", inputValue);
-						input.value = ""; // 清空输入框
-						toolbar.style.display = "none";
+						displayAIAnswer(inputValue); // 显示AI的回答
 					});
 
 					document.body.appendChild(toolbar);
@@ -100,74 +166,133 @@
 				const rect = range.getBoundingClientRect();
 				const toolbar = window.selectionToolbar;
 				const toolbarHeight = 40; // 工具栏的预计高度
-
-/* 				//显示在上方，选中顶部显示在下方的判断逻辑
-				// 检查选中文本是否靠近页面顶部
-				const isNearTop = rect.top < toolbarHeight + 10; // 10px 作为缓冲区
-
-				// 根据位置决定工具栏显示在选中文本的上方还是下方
-				const topPosition = isNearTop
-					? `${rect.bottom + window.pageYOffset + 5}px` // 显示在下方，加5px间距
-					: `${rect.top + window.pageYOffset - toolbarHeight - 5}px`; // 显示在上方，减5px间距 */
-
 				const topPosition = `${rect.bottom + window.pageYOffset + 5}px`;
-				
 				toolbar.style.top = topPosition;
 				toolbar.style.left = 0;
 				toolbar.style.zIndex = 9999;
 				toolbar.style.display = "flex";
+			}
 
-				// 如果工具栏在顶部且部分不可见，确保其可见
-				if (isNearTop) {
-					toolbar.scrollIntoView({ behavior: "smooth", block: "nearest" });
+			// 添加打字机效果函数
+			function typeWriter(element, text, speed = 50) {
+				let index = 0;
+				element.innerHTML += '<span class="typing-cursor"></span><br>';
+				
+				return new Promise(resolve => {
+					function type() {
+						if (index < text.length) {
+							const char = text.charAt(index);
+							const cursor = element.querySelector('.typing-cursor');
+							cursor.insertAdjacentText('beforebegin', char);
+							index++;
+							setTimeout(type, speed);
+						} else {
+							element.querySelector('.typing-cursor').remove();
+							resolve();
+						}
+					}
+					type();
+				});
+			}
+
+			// 修改显示AI回答的函数
+			async function displayAIAnswer(inputValue) {
+				const toolbar = window.selectionToolbar;
+				const answerContainer = document.getElementById("ai-answer-container");
+				
+				// 设置位置和样式
+				const toolbarRect = toolbar.getBoundingClientRect();
+				answerContainer.style.top = `${toolbarRect.bottom + window.pageYOffset + 10}px`;
+				answerContainer.style.left = toolbarRect.left + 'px';
+				answerContainer.style.width = `${toolbarRect.width}px`;
+				answerContainer.style.display = "block";
+				
+				// 创建回答内容容器，添加按钮容器
+				answerContainer.innerHTML = `
+					<strong>AI的回答:</strong>
+					<p id="ai-response"></p>
+					<div class="button-container">
+						<button id="regenerate-answer" class="regenerate-button" style="display: none;">重新生成</button>
+						<button id="insert-answer" class="insert-button" style="display: none;">插入到文档</button>
+					</div>
+				`;
+				
+				await generateAIResponse(inputValue);
+			}
+
+			// 新增生成AI响应的函数
+			async function generateAIResponse(inputValue) {
+				const responseElement = document.getElementById("ai-response");
+				responseElement.innerHTML = ''; // 清空现有内容
+				
+				// 模拟AI响应内容
+				const aiResponse = [
+					"让我想一想...",
+					"基于您的输入，我认为...",
+					`关于"${inputValue}"，我的建议是...",
+					"希望这个回答对您有帮助。`
+				];
+				
+				// 逐段显示回答
+				for (const text of aiResponse) {
+					await typeWriter(responseElement, text);
+					await new Promise(resolve => setTimeout(resolve, 500)); // 段落之间的停顿
+				}
+
+				// 显示按钮并添加事件监听
+				const insertButton = document.getElementById('insert-answer');
+				const regenerateButton = document.getElementById('regenerate-answer');
+				
+				insertButton.style.display = 'block';
+				regenerateButton.style.display = 'block';
+				
+				insertButton.addEventListener('click', function() {
+					insertAIResponse(responseElement.innerText);
+				});
+				
+				regenerateButton.addEventListener('click', async function() {
+					await generateAIResponse(inputValue);
+				});
+			}
+
+			// 修改插入AI回答的函数
+			function insertAIResponse(aiText) {
+				if (window.selectedRange && window.selectedSpan) {
+					// 创建新的文本节点
+					const text = document.createTextNode('\n' + aiText);
+					
+					// 在选中文本后插入AI回答
+					window.selectedSpan.after(text);
+					
+					// 移除高亮样式
+					window.selectedSpan.replaceWith(window.selectedSpan.textContent);
+					
+					// 隐藏工具栏和回答容器
+					window.selectionToolbar.style.display = "none";
+					document.getElementById("ai-answer-container").style.display = "none";
+					
+					// 滚动到插入位置
+					text.scrollIntoView({ behavior: 'smooth', block: 'center' });
 				}
 			}
 
-			// 插入新内容
-			function insertGeneratedContent() {
-				const range = window.selectedRange;
-				if (!range) return;
-
-				const newContent = document.createElement("span");
-				newContent.innerText = "这是自动生成的内容。";
-				newContent.classList.add("highlight");
-
-				const actionContainer = document.createElement("span");
-				actionContainer.style.marginLeft = "10px";
-
-				const acceptButton = document.createElement("button");
-				acceptButton.innerText = "接受";
-				acceptButton.style.marginRight = "5px";
-				actionContainer.appendChild(acceptButton);
-
-				const discardButton = document.createElement("button");
-				discardButton.innerText = "丢弃";
-				actionContainer.appendChild(discardButton);
-
-				const wrapper = document.createElement("span");
-				wrapper.appendChild(newContent);
-				wrapper.appendChild(actionContainer);
-
-				range.collapse(false);
-				range.insertNode(wrapper);
-
-				wrapper.scrollIntoView({ behavior: "smooth", block: "center" });
-
-				acceptButton.addEventListener("click", function () {
-					newContent.classList.remove("highlight");
-					actionContainer.remove();
-				});
-
-				discardButton.addEventListener("click", function () {
-					wrapper.remove();
-				});
-			}
-
-			// 点击页面其他区域时隐藏工具栏
+			// 修改点击页面其他区域时的处理逻辑
 			document.addEventListener("mousedown", function (event) {
 				const toolbar = window.selectionToolbar;
-				if (toolbar && !toolbar.contains(event.target)) {
+				const answerContainer = document.getElementById("ai-answer-container");
+				
+				// 检查点击是否在工具栏或AI回答容器之外
+				const clickedOutside = toolbar && 
+					!toolbar.contains(event.target) && 
+					!answerContainer.contains(event.target);
+				
+				if (clickedOutside) {
+					// 移除高亮样式
+					if (window.selectedSpan) {
+						window.selectedSpan.replaceWith(window.selectedSpan.textContent);
+					}
 					toolbar.style.display = "none";
+					answerContainer.style.display = "none";
 				}
 			});
 		</script>
