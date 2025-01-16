@@ -235,6 +235,10 @@
             font-weight: bold;
             margin: 14px 0;
         }
+
+        #editable-content {
+            outline: none;
+        }
     </style>
 </head>
 <body>
@@ -242,9 +246,9 @@
         <div class="editor-toolbar">
             <select class="format-select" onchange="formatText(this.value)" title="格式">
                 <option value="">正文</option>
-                <option value="h1">标题 1</option>
-                <option value="h2">标题 2</option>
-                <option value="h3">标题 3</option>
+                <option value="h1">H1</option>
+                <option value="h2">H2</option>
+                <option value="h3">H3</option>
             </select>
             <button onclick="undo()" id="undo-btn" title="撤销"><i class="icon">↶</i></button>
             <button onclick="redo()" id="redo-btn" title="重做"><i class="icon">↷</i></button>
@@ -277,18 +281,58 @@
     <script>
         // 添加基础编辑器功能
         function formatBold() {
-            document.execCommand('bold', false, null);
-            toggleButtonState('bold-btn');
+            const editableContent = document.getElementById('editable-content');
+            editableContent.focus(); // 确保焦点在编辑区域
+            document.execCommand('bold', false);
+            updateFormatButtons();
         }
 
         function formatItalic() {
-            document.execCommand('italic', false, null);
-            toggleButtonState('italic-btn');
+            const editableContent = document.getElementById('editable-content');
+            editableContent.focus();
+            document.execCommand('italic', false);
+            updateFormatButtons();
         }
 
         function formatUnderline() {
-            document.execCommand('underline', false, null);
-            toggleButtonState('underline-btn');
+            const editableContent = document.getElementById('editable-content');
+            editableContent.focus();
+            document.execCommand('underline', false);
+            updateFormatButtons();
+        }
+
+        // 添加格式按钮状态更新函数
+        function updateFormatButtons() {
+            const commands = {
+                'bold-btn': 'bold',
+                'italic-btn': 'italic',
+                'underline-btn': 'underline'
+            };
+
+            for (const [btnId, command] of Object.entries(commands)) {
+                const button = document.getElementById(btnId);
+                if (document.queryCommandState(command)) {
+                    button.classList.add('active');
+                } else {
+                    button.classList.remove('active');
+                }
+            }
+        }
+
+        // 监听选择变化，更新按钮状态
+        document.getElementById('editable-content').addEventListener('selectionchange', function() {
+            updateFormatButtons();
+        });
+
+        // 监听编辑器内容变化
+        document.getElementById('editable-content').addEventListener('input', function() {
+            updateFormatButtons();
+            updateUndoRedoState();
+        });
+
+        // 替换原有的toggleButtonState函数
+        function toggleButtonState(buttonId) {
+            updateFormatButtons();
         }
 
         // 添加撤销重做功能
@@ -545,19 +589,12 @@
 
         // 监听选择变化，更新按钮状态
         document.getElementById('editable-content').addEventListener('selectionchange', function() {
-            toggleButtonState('bold-btn');
-            toggleButtonState('italic-btn');
-            toggleButtonState('underline-btn');
+            updateFormatButtons();
         });
 
         // 添加按钮状态切换功能
         function toggleButtonState(buttonId) {
-            const button = document.getElementById(buttonId);
-            if (document.queryCommandState(buttonId.split('-')[0])) {
-                button.classList.add('active');
-            } else {
-                button.classList.remove('active');
-            }
+            updateFormatButtons();
         }
 
         // 添加标题处理逻辑
@@ -586,14 +623,6 @@
             const range = selection.getRangeAt(0);
             const container = range.commonAncestorContainer;
             
-            // 移除现有的标题类
-            ['h1', 'h2', 'h3'].forEach(className => {
-                const elements = document.getElementsByClassName(className);
-                Array.from(elements).forEach(el => {
-                    el.classList.remove(className);
-                });
-            });
-
             if (format) {
                 // 判断是否需要创建新的p标签
                 let targetElement = container;
