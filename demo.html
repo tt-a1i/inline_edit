@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<style>
+			#selection-toolbar {
+				background-color: #f9f9f9;
+				border: 1px solid #ddd;
+				padding: 5px;
+				border-radius: 4px;
+				display: none;
+				position: absolute;
+				z-index: 1000;
+				box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.2);
+			}
+			#selection-toolbar button {
+				margin: 0 5px;
+			}
+			.highlight {
+				background-color: #ffff99;
+			}
+		</style>
+	</head>
+	<body>
+		<p>
+			这是一个示例文本。请选中部分文本后，在其上方会出现一个悬浮的工具栏，您可以点击“生成内容”按钮，在光标位置插入新的内容。
+		</p>
+		<p>
+			这是一个示例文本。请选中部分文本后，在其上方会出现一个悬浮的工具栏，您可以点击“生成内容”按钮，在光标位置插入新的内容。
+		</p>
+		<p>
+			这是一个示例文本。请选中部分文本后，在其上方会出现一个悬浮的工具栏，您可以点击“生成内容”按钮，在光标位置插入新的内容。
+		</p>
+		<p>
+			这是一个示例文本。请选中部分文本后，在其上方会出现一个悬浮的工具栏，您可以点击“生成内容”按钮，在光标位置插入新的内容。
+		</p>
+		<script>
+			// 监听鼠标弹起事件，检测选区
+			document.addEventListener("mouseup", function (event) {
+				//获取当前页面上的文本选择对象
+				const selection = window.getSelection();
+				console.log("🚀selection:", selection);
+				//没有选中内容时（比如只是鼠标点击一下），isCollapsed为true，选中内容后为false
+				if (!selection.isCollapsed) {
+					//创建range对象的副本，避免直接引用
+					const range = selection.getRangeAt(0).cloneRange();
+					console.log("🚀 ~ document.addEventListener ~ range:", range);
+					//存储为全局变量
+					window.selectedRange = range;
+					showToolbar(range);
+				}
+			});
+
+			// 显示工具栏
+			function showToolbar(range) {
+				// 避免重复创建
+				if (!window.selectionToolbar) {
+					const toolbar = document.createElement("div");
+					toolbar.id = "selection-toolbar";
+					toolbar.style.display = "flex"; // 使用 flex 布局
+					toolbar.style.alignItems = "center"; // 垂直居中
+					toolbar.style.position = "absolute";
+					toolbar.style.width = "100%"; // 宽度 100%
+					toolbar.style.boxSizing = "border-box"; //包含padding和border
+					toolbar.style.padding = "5px"; // 添加内边距
+					toolbar.style.backgroundColor = "#f0f0f0"; // 添加背景色
+					toolbar.style.border = "1px solid #ccc"; // 添加边框
+
+					// 输入框
+					const input = document.createElement("input");
+					input.type = "text";
+					input.style.flexGrow = "1"; // 输入框占据剩余空间
+					input.style.padding = "5px";
+					input.style.border = "1px solid #ccc";
+					input.style.borderRadius = "3px";
+					toolbar.appendChild(input);
+
+					// 发送按钮
+					const sendButton = document.createElement("button");
+					sendButton.innerText = "发送";
+					sendButton.style.marginLeft = "5px"; // 按钮左边距
+					sendButton.style.padding = "5px 10px";
+					sendButton.style.border = "1px solid #ccc";
+					sendButton.style.borderRadius = "3px";
+					toolbar.appendChild(sendButton);
+
+					// 点击发送按钮的监听器
+					sendButton.addEventListener("click", function (e) {
+						e.stopPropagation();
+						const inputValue = input.value;
+						// 执行发送操作的逻辑，inputValue 是输入框中的内容
+						console.log("发送内容:", inputValue);
+						input.value = ""; // 清空输入框
+						toolbar.style.display = "none";
+					});
+
+					document.body.appendChild(toolbar);
+					window.selectionToolbar = toolbar;
+				}
+
+				const rect = range.getBoundingClientRect();
+				const toolbar = window.selectionToolbar;
+				const toolbarHeight = 40; // 工具栏的预计高度
+
+				// 检查选中文本是否靠近页面顶部
+				const isNearTop = rect.top < toolbarHeight + 10; // 10px 作为缓冲区
+
+				// 根据位置决定工具栏显示在选中文本的上方还是下方
+				const topPosition = isNearTop
+					? `${rect.bottom + window.pageYOffset + 5}px` // 显示在下方，加5px间距
+					: `${rect.top + window.pageYOffset - toolbarHeight - 5}px`; // 显示在上方，减5px间距
+
+				toolbar.style.top = topPosition;
+				toolbar.style.left = 0;
+				toolbar.style.zIndex = 9999;
+				toolbar.style.display = "flex";
+
+				// 如果工具栏在顶部且部分不可见，确保其可见
+				if (isNearTop) {
+					toolbar.scrollIntoView({ behavior: "smooth", block: "nearest" });
+				}
+			}
+
+			// 插入新内容
+			function insertGeneratedContent() {
+				const range = window.selectedRange;
+				if (!range) return;
+
+				const newContent = document.createElement("span");
+				newContent.innerText = "这是自动生成的内容。";
+				newContent.classList.add("highlight");
+
+				const actionContainer = document.createElement("span");
+				actionContainer.style.marginLeft = "10px";
+
+				const acceptButton = document.createElement("button");
+				acceptButton.innerText = "接受";
+				acceptButton.style.marginRight = "5px";
+				actionContainer.appendChild(acceptButton);
+
+				const discardButton = document.createElement("button");
+				discardButton.innerText = "丢弃";
+				actionContainer.appendChild(discardButton);
+
+				const wrapper = document.createElement("span");
+				wrapper.appendChild(newContent);
+				wrapper.appendChild(actionContainer);
+
+				range.collapse(false);
+				range.insertNode(wrapper);
+
+				wrapper.scrollIntoView({ behavior: "smooth", block: "center" });
+
+				acceptButton.addEventListener("click", function () {
+					newContent.classList.remove("highlight");
+					actionContainer.remove();
+				});
+
+				discardButton.addEventListener("click", function () {
+					wrapper.remove();
+				});
+			}
+
+			// 点击页面其他区域时隐藏工具栏
+			document.addEventListener("mousedown", function (event) {
+				const toolbar = window.selectionToolbar;
+				if (toolbar && !toolbar.contains(event.target)) {
+					toolbar.style.display = "none";
+				}
+			});
+		</script>
+	</body>
+</html>
