@@ -101,14 +101,17 @@
 				const toolbar = window.selectionToolbar;
 				const toolbarHeight = 40; // 工具栏的预计高度
 
+/* 				//显示在上方，选中顶部显示在下方的判断逻辑
 				// 检查选中文本是否靠近页面顶部
 				const isNearTop = rect.top < toolbarHeight + 10; // 10px 作为缓冲区
 
 				// 根据位置决定工具栏显示在选中文本的上方还是下方
 				const topPosition = isNearTop
 					? `${rect.bottom + window.pageYOffset + 5}px` // 显示在下方，加5px间距
-					: `${rect.top + window.pageYOffset - toolbarHeight - 5}px`; // 显示在上方，减5px间距
+					: `${rect.top + window.pageYOffset - toolbarHeight - 5}px`; // 显示在上方，减5px间距 */
 
+				const topPosition = `${rect.bottom + window.pageYOffset + 5}px`;
+				
 				toolbar.style.top = topPosition;
 				toolbar.style.left = 0;
 				toolbar.style.zIndex = 9999;
