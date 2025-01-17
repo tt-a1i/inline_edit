@@ -181,7 +181,7 @@
 				border-radius: 2px;
 				padding: 2px 0;
 				transition: background-color 0.3s ease;
-				display: inline-block; /* 修改为行内块级元素 */
+				display: block; /* 修改为块级元素以保持段落结构 */
 				width: 100%; /* 确保宽度充满容器 */
 			}
 
@@ -408,55 +408,63 @@
 				const editorContent = document.querySelector('.editor-content');
 				
 				// 清除之前的高亮
-				if (window.selectedSpan) {
-					// 保存原始段落结构，而不是直接替换内容
-					const originalContent = window.selectedSpan;
-					const parent = originalContent.parentNode;
-					while (originalContent.firstChild) {
-						parent.insertBefore(originalContent.firstChild, originalContent);
-					}
-					originalContent.remove();
+				if (window.selectedSpans) {
+					window.selectedSpans.forEach(originalContent => {
+						const parent = originalContent.parentNode;
+						while (originalContent.firstChild) {
+							parent.insertBefore(originalContent.firstChild, originalContent);
+						}
+						originalContent.remove();
+					});
+					window.selectedSpans = [];
 				}
 				
 				try {
-					// 给选中的文本添加高亮样式
-					const span = document.createElement('span');
-					span.className = 'highlight-selection';
-					
-					// 处理选区内容
-					const clone = range.cloneContents();
-					
-					// 保持段落结构
-					if (clone.querySelectorAll('p').length === 0) {
-						// 如果没有段落标签，创建一个
-						const p = document.createElement('p');
-						while (clone.firstChild) {
-							p.appendChild(clone.firstChild);
-						}
-						span.appendChild(p);
-					} else {
-						// 如果有段落标签，直接使用
-						while (clone.firstChild) {
-							span.appendChild(clone.firstChild);
-						}
+					const selection = window.getSelection();
+					const ranges = [];
+					for (let i = 0; i < selection.rangeCount; i++) {
+						ranges.push(selection.getRangeAt(i));
 					}
-					
-					range.deleteContents();
-					range.insertNode(span);
-					
-					window.selectedSpan = span;
+
+					window.selectedSpans = [];
+
+					ranges.forEach(range => {
+						const startContainer = range.startContainer;
+						const endContainer = range.endContainer;
+
+						let startElement = startContainer.nodeType === 3 ? startContainer.parentNode : startContainer;
+						let endElement = endContainer.nodeType === 3 ? endContainer.parentNode : endContainer;
+
+						if (startElement.tagName === 'P' && endElement.tagName === 'P') {
+							const paragraphs = Array.from(startElement.parentNode.querySelectorAll('p')).slice(
+								Array.from(startElement.parentNode.children).indexOf(startElement),
+								Array.from(startElement.parentNode.children).indexOf(endElement) + 1
+							);
+							
+							paragraphs.forEach(p => {
+								const span = document.createElement('span');
+								span.className = 'highlight-selection';
+								p.parentNode.insertBefore(span, p);
+								span.appendChild(p);
+								window.selectedSpans.push(span);
+							});
+						}
+					});
 				} catch (e) {
 					console.error('Error highlighting selection:', e);
 					return;
 				}
 
-				const rect = range.getBoundingClientRect();
-				const editorRect = editorContent.getBoundingClientRect();
-				
-				// 计算工具栏位置
-				const topPosition = rect.bottom - editorRect.top + editorContent.scrollTop;
-				toolbar.style.top = `${topPosition + 5}px`;
-				
+				// Calculate toolbar position based on the last selected span
+				if (window.selectedSpans.length > 0) {
+					const lastSpan = window.selectedSpans[window.selectedSpans.length - 1];
+					const rect = lastSpan.getBoundingClientRect();
+					const editorRect = editorContent.getBoundingClientRect();
+
+					const topPosition = rect.bottom - editorRect.top + editorContent.scrollTop;
+					toolbar.style.top = `${topPosition + 5}px`;
+				}
+
 				editorContent.appendChild(toolbar);
 				toolbar.style.display = "flex";
 			}
@@ -606,32 +614,24 @@
 
 			// 修改插入AI回答的函数
 			function insertAIResponse(aiText) {
-				if (window.selectedRange && window.selectedSpan) {
-					// 创建新的段落用于AI回答
-					const newP = document.createElement('p');
-					newP.textContent = aiText;
+				if (window.selectedSpans && window.selectedSpans.length > 0) {
+					window.selectedSpans.forEach(span => {
+						const newP = document.createElement('p');
+						newP.textContent = aiText;
+						
+						// 插入AI回答到当前段落后
+						span.parentNode.insertBefore(newP, span.nextSibling);
+						
+						// 恢复原始段落
+						while (span.firstChild) {
+							span.parentNode.insertBefore(span.firstChild, span);
+						}
+						
+						// 移除高亮
+						span.remove();
+					});
 					
-					// 保持原始内容的段落结构
-					const originalContent = window.selectedSpan;
-					const parent = originalContent.parentNode;
-					
-					// 恢复原始段落
-					while (originalContent.firstChild) {
-						parent.insertBefore(originalContent.firstChild, originalContent);
-					}
-					
-					// 插入AI回答到最后一个段落后
-					const lastOriginalP = window.selectedRange.endContainer.parentElement;
-					if (lastOriginalP && lastOriginalP.tagName === 'P') {
-						lastOriginalP.after(newP);
-					} else {
-						// 如果找不到合适的段落，就插入到选区后面
-						originalContent.after(newP);
-					}
-					
-					// 清理
-					originalContent.remove();
-					window.selectedSpan = null;
+					window.selectedSpans = null;
 					window.selectionToolbar.style.display = "none";
 					document.getElementById("ai-answer-container").style.display = "none";
 				}
@@ -650,9 +650,11 @@
 
 				if (clickedOutside) {
 					// 清除高亮和隐藏工具栏
-					if (window.selectedSpan) {
-						window.selectedSpan.replaceWith(window.selectedSpan.textContent);
-						window.selectedSpan = null;
+					if (window.selectedSpans && window.selectedSpans.length > 0) {
+						window.selectedSpans.forEach(span => {
+							span.replaceWith(...span.childNodes);
+						});
+						window.selectedSpans = null;
 					}
 					toolbar.style.display = "none";
 					answerContainer.style.display = "none";
