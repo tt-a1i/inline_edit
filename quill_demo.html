@@ -1,0 +1,174 @@
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+<link
+	href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css"
+	rel="stylesheet"
+/>
+<style>
+	.ql-container .ql-editor::selection,
+	.ql-container .ql-editor *::selection {
+		background-color: #b4d5fe;
+	}
+
+	.floating-input {
+		position: fixed;  /* 改为 fixed 定位 */
+		display: none;
+		background: white;
+		box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+		border-radius: 8px;
+		padding: 10px;
+		width: 300px;
+		z-index: 9999;  /* 确保在最上层 */
+	}
+
+	.input-container {
+		display: flex;
+		gap: 8px;
+		margin-bottom: 10px;
+	}
+
+	.input-container input {
+		flex: 1;
+		padding: 8px;
+		border: 1px solid #ddd;
+		border-radius: 4px;
+	}
+
+	.send-btn {
+		background: #0084ff;
+		border: none;
+		border-radius: 4px;
+		padding: 8px;
+		color: white;
+		cursor: pointer;
+	}
+
+	.ai-response {
+		background: #f5f5f5;
+		padding: 10px;
+		border-radius: 4px;
+		margin-top: 10px;
+		display: none;
+	}
+
+	.action-buttons {
+		display: none;
+		gap: 8px;
+		margin-top: 8px;
+	}
+
+	.action-buttons button {
+		padding: 4px 8px;
+		border: 1px solid #ddd;
+		border-radius: 4px;
+		cursor: pointer;
+	}
+</style>
+
+<div id="editor">
+	<h2>Demo Content</h2>
+	<p>Preset build with <code>snow</code> theme, and some common formats.</p>
+</div>
+
+<div class="floating-input" id="floatingInput">
+	<div class="input-container">
+		<input type="text" id="promptInput" placeholder="输入提示..." />
+		<button class="send-btn" id="sendBtn">✈️</button>
+	</div>
+	<div class="ai-response" id="aiResponse"></div>
+	<div class="action-buttons" id="actionButtons">
+		<button id="insertAfter">插入到后面</button>
+		<button id="replace">替换选中内容</button>
+	</div>
+</div>
+
+<script>
+	const options = {
+		// debug: "info",
+		modules: {
+			toolbar: [
+				[{ header: [1, 2, false] }],
+				["bold", "italic", "underline"],
+				["image", "code-block"],
+			],
+		},
+		placeholder: "Compose an epic...",
+		theme: "snow",
+	};
+	const quill = new Quill("#editor", options);
+
+	let currentRange = null;
+	const floatingInput = document.getElementById("floatingInput");
+	const promptInput = document.getElementById("promptInput");
+	const sendBtn = document.getElementById("sendBtn");
+	const aiResponse = document.getElementById("aiResponse");
+	const actionButtons = document.getElementById("actionButtons");
+
+	quill.on("selection-change", function (range, oldRange, source) {
+		if (range && range.length > 0) {
+			const bounds = quill.getBounds(range.index, range.length);
+			currentRange = range;
+
+			// 获取编辑器容器的位置信息
+			const editorRect = quill.container.getBoundingClientRect();
+			
+			// 计算输入框的位置
+			const topPosition = editorRect.top + bounds.bottom + 10; // 在选中文本下方10px
+			const leftPosition = editorRect.left + bounds.left;
+
+			floatingInput.style.display = "block";
+			floatingInput.style.top = `${topPosition}px`;
+			floatingInput.style.left = `${leftPosition}px`;
+		} else if (!range) {
+			// 点击编辑器外部时隐藏输入框，但点击输入框本身时不隐藏
+			if (!floatingInput.contains(document.activeElement)) {
+				floatingInput.style.display = "none";
+			}
+		}
+	});
+
+	sendBtn.addEventListener("click", async () => {
+		const prompt = promptInput.value;
+		if (!prompt) return;
+
+		// 模拟AI响应
+		aiResponse.style.display = "block";
+		aiResponse.textContent = "正在生成回答...";
+
+		// 模拟API调用延迟
+		setTimeout(() => {
+			aiResponse.textContent = `这是AI的回答：${prompt}`;
+			actionButtons.style.display = "flex";
+		}, 1000);
+	});
+
+	// 添加渐进式插入文本的函数
+	async function progressiveInsert(text, startIndex, isReplace = false) {
+		const delay = 50; // 每个字符插入的延迟时间（毫秒）
+		
+		if (isReplace) {
+			quill.deleteText(currentRange.index, currentRange.length);
+		}
+		
+		const insertPosition = isReplace ? currentRange.index : startIndex;
+		let currentPosition = insertPosition;
+		
+		for (let i = 0; i < text.length; i++) {
+			await new Promise(resolve => setTimeout(resolve, delay));
+			quill.insertText(currentPosition, text[i]);
+			currentPosition++;
+		}
+	}
+
+	document.getElementById("insertAfter").addEventListener("click", () => {
+		if (currentRange && aiResponse.textContent) {
+			const insertIndex = currentRange.index + currentRange.length;
+			progressiveInsert(" " + aiResponse.textContent, insertIndex);
+		}
+	});
+
+	document.getElementById("replace").addEventListener("click", () => {
+		if (currentRange && aiResponse.textContent) {
+			progressiveInsert(aiResponse.textContent, currentRange.index, true);
+		}
+	});
+</script>
