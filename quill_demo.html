@@ -10,14 +10,14 @@
 	}
 
 	.floating-input {
-		position: fixed;  /* 改为 fixed 定位 */
+		position: fixed; /* 改为 fixed 定位 */
 		display: none;
 		background: white;
 		box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 		border-radius: 8px;
 		padding: 10px;
 		width: 300px;
-		z-index: 9999; 
+		z-index: 9999;
 	}
 
 	.input-container {
@@ -34,7 +34,7 @@
 	}
 
 	.send-btn {
-		background: #409EFF;
+		background: #409eff;
 		border: none;
 		border-radius: 4px;
 		padding: 8px;
@@ -90,6 +90,7 @@
 		// debug: "info",
 		modules: {
 			toolbar: [
+				[{ size: ["small", false, "large", "huge"] }],
 				[{ header: [1, 2, false] }],
 				["bold", "italic", "underline"],
 				["image", "code-block"],
@@ -107,31 +108,50 @@
 	const aiResponse = document.getElementById("aiResponse");
 	const actionButtons = document.getElementById("actionButtons");
 
-	// 添加高亮处理函数
+	// 选中内容部分的高亮处理
 	function highlightSelection(range) {
 		if (range && range.length > 0) {
-			quill.formatText(range.index, range.length, 'background', '#b4d5fe');
+			quill.formatText(range.index, range.length, "background", "#b4d5fe");
 		}
 	}
 
 	function clearHighlight() {
 		if (currentRange) {
-			quill.formatText(currentRange.index, currentRange.length, 'background', false);
+			quill.formatText(
+				currentRange.index,
+				currentRange.length,
+				"background",
+				false
+			);
 		}
 	}
 
+	/**
+	 * 处理 Quill 编辑器中的选择变化事件
+	 *
+	 * @param {Object} range - 当前选择的范围对象，{index, length}。
+	 * @param {Object} oldRange - 之前的选择范围对象。
+	 * @param {string} source - 触发选择变化的来源，例如 'user' 或 'api'。
+	 * 通过发布订阅模式，在选中文本时quill内部emit对应的时间名的回调
+	 */
 	quill.on("selection-change", function (range, oldRange, source) {
+		console.log("🚀 ~ range:", range)
 		if (range && range.length > 0) {
+			//选中内容后，继续选中新的内容时，清除之前选中内容的高亮
+			if(currentRange) clearHighlight();
+
+			//getBounds() 方法用于获取文本选区的位置和尺寸信息,相对于左上角原点
 			const bounds = quill.getBounds(range.index, range.length);
 			currentRange = range;
-			
+
 			// 添加高亮
 			highlightSelection(range);
 
 			// 获取编辑器容器的位置信息
 			const editorRect = quill.container.getBoundingClientRect();
-			
+
 			// 计算输入框的位置
+			//顶部位置 = 编辑器容器的顶部距离视口顶部 + 选中文本的底部距离编辑容器顶部 + 10px
 			const topPosition = editorRect.top + bounds.bottom + 10; // 在选中文本下方10px
 			const leftPosition = editorRect.left + bounds.left;
 
@@ -139,6 +159,7 @@
 			floatingInput.style.top = `${topPosition}px`;
 			floatingInput.style.left = `${leftPosition}px`;
 		} else if (!range) {
+			console.log("🚀 ~ !range:", !range)
 			// 点击编辑器外部时隐藏输入框，但点击输入框本身时不隐藏
 			if (!floatingInput.contains(document.activeElement)) {
 				floatingInput.style.display = "none";
@@ -150,8 +171,10 @@
 		const prompt = promptInput.value;
 		if (!prompt) return;
 
-		 // 获取选中的文本
-        const selectedText = currentRange ? quill.getText(currentRange.index, currentRange.length) : '';
+		// 获取选中的文本
+		const selectedText = currentRange
+			? quill.getText(currentRange.index, currentRange.length)
+			: "";
 
 		// 模拟AI响应
 		aiResponse.style.display = "block";
@@ -167,16 +190,16 @@
 	// 添加渐进式插入文本的函数
 	async function progressiveInsert(text, startIndex, isReplace = false) {
 		const delay = 50; // 每个字符插入的延迟时间（毫秒）
-		
+
 		if (isReplace) {
 			quill.deleteText(currentRange.index, currentRange.length);
 		}
-		
+
 		const insertPosition = isReplace ? currentRange.index : startIndex;
 		let currentPosition = insertPosition;
-		
+
 		for (let i = 0; i < text.length; i++) {
-			await new Promise(resolve => setTimeout(resolve, delay));
+			await new Promise((resolve) => setTimeout(resolve, delay));
 			quill.insertText(currentPosition, text[i]);
 			currentPosition++;
 		}
@@ -194,30 +217,33 @@
 
 	document.getElementById("replace").addEventListener("click", () => {
 		if (currentRange && aiResponse.textContent) {
-			progressiveInsert(aiResponse.textContent, currentRange.index, true).then(() => {
-				clearHighlight();
-			});
+			progressiveInsert(aiResponse.textContent, currentRange.index, true).then(
+				() => {
+					clearHighlight();
+				}
+			);
 		}
 	});
 
 	// 移除原有的点击事件监听器，改用新的逻辑
-    document.addEventListener('mouseup', (event) => {
-        // 延迟执行以确保selection-change事件先触发
-        setTimeout(() => {
-            const target = event.target;
-            // 检查点击目标是否在允许的区域内
-            const isInFloatingInput = floatingInput.contains(target);
-            const isInEditor = quill.container.contains(target);
-            const hasSelection = quill.getSelection() && quill.getSelection().length > 0;
+	document.addEventListener("mouseup", (event) => {
+		// 延迟执行以确保selection-change事件先触发
+		setTimeout(() => {
+			const target = event.target;
+			// 检查点击目标是否在允许的区域内
+			const isInFloatingInput = floatingInput.contains(target);
+			const isInEditor = quill.container.contains(target);
+			const hasSelection =
+				quill.getSelection() && quill.getSelection().length > 0;
 
-            // 如果点击在允许区域外，且不是在选择文本
-            if (!isInFloatingInput && !hasSelection) {
-                floatingInput.style.display = "none";
-                aiResponse.style.display = "none";
-                actionButtons.style.display = "none";
-                promptInput.value = "";
-                clearHighlight(); // 清除高亮
-            }
-        }, 0);
-    });
+			// 如果点击在允许区域外，且不是在选择文本
+			if (!isInFloatingInput && !hasSelection) {
+				floatingInput.style.display = "none";
+				aiResponse.style.display = "none";
+				actionButtons.style.display = "none";
+				promptInput.value = "";
+				clearHighlight(); // 清除高亮
+			}
+		}, 0);
+	});
 </script>
