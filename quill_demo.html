@@ -17,7 +17,7 @@
 		border-radius: 8px;
 		padding: 10px;
 		width: 300px;
-		z-index: 9999;  /* 确保在最上层 */
+		z-index: 9999; 
 	}
 
 	.input-container {
@@ -34,7 +34,7 @@
 	}
 
 	.send-btn {
-		background: #0084ff;
+		background: #409EFF;
 		border: none;
 		border-radius: 4px;
 		padding: 8px;
@@ -61,6 +61,10 @@
 		border: 1px solid #ddd;
 		border-radius: 4px;
 		cursor: pointer;
+	}
+
+	.highlight-selection {
+		background-color: #b4d5fe !important;
 	}
 </style>
 
@@ -103,10 +107,26 @@
 	const aiResponse = document.getElementById("aiResponse");
 	const actionButtons = document.getElementById("actionButtons");
 
+	// 添加高亮处理函数
+	function highlightSelection(range) {
+		if (range && range.length > 0) {
+			quill.formatText(range.index, range.length, 'background', '#b4d5fe');
+		}
+	}
+
+	function clearHighlight() {
+		if (currentRange) {
+			quill.formatText(currentRange.index, currentRange.length, 'background', false);
+		}
+	}
+
 	quill.on("selection-change", function (range, oldRange, source) {
 		if (range && range.length > 0) {
 			const bounds = quill.getBounds(range.index, range.length);
 			currentRange = range;
+			
+			// 添加高亮
+			highlightSelection(range);
 
 			// 获取编辑器容器的位置信息
 			const editorRect = quill.container.getBoundingClientRect();
@@ -157,18 +177,52 @@
 			quill.insertText(currentPosition, text[i]);
 			currentPosition++;
 		}
+		return Promise.resolve(); // 添加这行以确保返回 Promise
 	}
 
 	document.getElementById("insertAfter").addEventListener("click", () => {
 		if (currentRange && aiResponse.textContent) {
 			const insertIndex = currentRange.index + currentRange.length;
-			progressiveInsert(" " + aiResponse.textContent, insertIndex);
+			progressiveInsert(" " + aiResponse.textContent, insertIndex).then(() => {
+				clearHighlight();
+			});
 		}
 	});
 
 	document.getElementById("replace").addEventListener("click", () => {
 		if (currentRange && aiResponse.textContent) {
-			progressiveInsert(aiResponse.textContent, currentRange.index, true);
+			progressiveInsert(aiResponse.textContent, currentRange.index, true).then(() => {
+				clearHighlight();
+			});
 		}
 	});
+
+	// 移除原有的点击事件监听器，改用新的逻辑
+    document.addEventListener('mouseup', (event) => {
+        // 延迟执行以确保selection-change事件先触发
+        setTimeout(() => {
+            const target = event.target;
+            // 检查点击目标是否在允许的区域内
+            const isInFloatingInput = floatingInput.contains(target);
+            const isInEditor = quill.container.contains(target);
+            const hasSelection = quill.getSelection() && quill.getSelection().length > 0;
+
+            // 如果点击在允许区域外，且不是在选择文本
+            if (!isInFloatingInput && !hasSelection) {
+                floatingInput.style.display = "none";
+                aiResponse.style.display = "none";
+                actionButtons.style.display = "none";
+                promptInput.value = "";
+                clearHighlight(); // 清除高亮
+            }
+        }, 0);
+    });
+
+    // 不需要这些事件阻止冒泡了
+    // floatingInput.addEventListener('click', (event) => {
+    //     event.stopPropagation();
+    // });
+    // quill.container.addEventListener('click', (event) => {
+    //     event.stopPropagation();
+    // });
 </script>
