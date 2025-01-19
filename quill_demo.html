@@ -150,13 +150,16 @@
 		const prompt = promptInput.value;
 		if (!prompt) return;
 
+		 // 获取选中的文本
+        const selectedText = currentRange ? quill.getText(currentRange.index, currentRange.length) : '';
+
 		// 模拟AI响应
 		aiResponse.style.display = "block";
 		aiResponse.textContent = "正在生成回答...";
 
 		// 模拟API调用延迟
 		setTimeout(() => {
-			aiResponse.textContent = `这是AI的回答：${prompt}`;
+			aiResponse.textContent = `选中的文本是：${selectedText}  AI的回答：${prompt}`;
 			actionButtons.style.display = "flex";
 		}, 1000);
 	});
@@ -217,12 +220,4 @@
             }
         }, 0);
     });
-
-    // 不需要这些事件阻止冒泡了
-    // floatingInput.addEventListener('click', (event) => {
-    //     event.stopPropagation();
-    // });
-    // quill.container.addEventListener('click', (event) => {
-    //     event.stopPropagation();
-    // });
 </script>
