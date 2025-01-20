@@ -46,11 +46,6 @@
 				background-color: #f0f0f0;
 			}
 
-			.editor-toolbar button.active {
-				background-color: #e3e3e3;
-				border-color: #999;
-			}
-
 			.editor-toolbar button i {
 				font-style: normal;
 				font-weight: bold;
@@ -59,7 +54,7 @@
 
 			.editor-content {
 				padding: 20px;
-				position: relative; /* 添加相对定位 */
+				position: relative; 
 			}
 
 			.editor-title {
@@ -67,7 +62,7 @@
 				margin-bottom: 20px;
 				padding-bottom: 10px;
 				border-bottom: 1px solid #eee;
-				outline: none; /* 移除默认的焦点边框 */
+				outline: none;
 			}
 
 			.editor-title:hover {
@@ -85,7 +80,6 @@
 				cursor: text;
 			}
 
-			/* 保持现有的选择工具栏和AI回答样式 */
 			#selection-toolbar {
 				background-color: #f9f9f9;
 				border: 1px solid #ddd;
@@ -103,10 +97,6 @@
 
 			#selection-toolbar button {
 				margin: 0 5px;
-			}
-
-			.highlight {
-				background-color: #ffff99;
 			}
 
 			#ai-answer-container {
@@ -179,16 +169,16 @@
 			.highlight-selection {
 				background-color: #fff3cd;
 				border-radius: 2px;
-				padding: 2px 0;
+				/* padding: 2px 0; */
 				transition: background-color 0.3s ease;
 				display: block; /* 修改为块级元素以保持段落结构 */
 				width: 100%; /* 确保宽度充满容器 */
 			}
 
-			.highlight-selection p {
-				margin: 0; /* 保持段落间距 */
+/* 			.highlight-selection p {
+				margin: 0; 
 				padding: 5px 0;
-			}
+			} */
 
 			.editor-toolbar button i.icon {
 				font-family: Arial, sans-serif;
@@ -265,11 +255,11 @@
 				<button onclick="redo()" id="redo-btn" title="重做">
 					<i class="icon">↷</i>
 				</button>
-				<button onclick="formatBold()" id="bold-btn"><i>B</i></button>
-				<button onclick="formatItalic()" id="italic-btn">
+				<button onclick="" id="bold-btn"><i>B</i></button>
+				<button onclick="" id="italic-btn">
 					<i style="font-style: italic">I</i>
 				</button>
-				<button onclick="formatUnderline()" id="underline-btn">
+				<button onclick="" id="underline-btn">
 					<i style="text-decoration: underline">U</i>
 				</button>
 			</div>
@@ -283,15 +273,6 @@
 					示例文档标题
 				</div>
 				<div id="editable-content" contenteditable="true">
-					<p>
-						这是一个示例文本。请选中部分文本后，在其上方会出现一个悬浮的工具栏，您可以点击"生成内容"按钮，在光标位置插入新的内容。
-					</p>
-					<p>
-						这是一个示例文本。请选中部分文本后，在其上方会出现一个悬浮的工具栏，您可以点击"生成内容"按钮，在光标位置插入新的内容。
-					</p>
-					<p>
-						这是一个示例文本。请选中部分文本后，在其上方会出现一个悬浮的工具栏，您可以点击"生成内容"按钮，在光标位置插入新的内容。
-					</p>
 				</div>
 			</div>
 		</div>
@@ -302,62 +283,35 @@
 		<script>
 			// 添加基础编辑器功能
 			function formatBold() {
-				const editableContent = document.getElementById("editable-content");
-				editableContent.focus(); // 确保焦点在编辑区域
-				document.execCommand("bold", false);
-				updateFormatButtons();
+				//TODO: 加粗
 			}
 
 			function formatItalic() {
-				const editableContent = document.getElementById("editable-content");
-				editableContent.focus();
-				document.execCommand("italic", false);
-				updateFormatButtons();
+				//TODO: 斜体
 			}
 
 			function formatUnderline() {
-				const editableContent = document.getElementById("editable-content");
-				editableContent.focus();
-				document.execCommand("underline", false);
-				updateFormatButtons();
-			}
-
-			// 添加格式按钮状态更新函数
-			function updateFormatButtons() {
-				const commands = {
-					"bold-btn": "bold",
-					"italic-btn": "italic",
-					"underline-btn": "underline",
-				};
-
-				for (const [btnId, command] of Object.entries(commands)) {
-					const button = document.getElementById(btnId);
-					if (document.queryCommandState(command)) {
-						button.classList.add("active");
-					} else {
-						button.classList.remove("active");
-					}
-				}
+				//TODO: 下划线
 			}
 
 			// 监听选择变化，更新按钮状态
 			document
 				.getElementById("editable-content")
 				.addEventListener("selectionchange", function () {
-					updateFormatButtons();
+					
 				});
 
 			// 监听编辑器内容变化
 			document
 				.getElementById("editable-content")
 				.addEventListener("input", function () {
-					updateFormatButtons();
+					
 					updateUndoRedoState();
 				});
 
 			// 替换原有的toggleButtonState函数
 			function toggleButtonState(buttonId) {
-				updateFormatButtons();
+				
 			}
 
 			// 添加撤销重做功能
@@ -665,12 +619,12 @@
 			document
 				.getElementById("editable-content")
 				.addEventListener("selectionchange", function () {
-					updateFormatButtons();
+					
 				});
 
 			// 添加按钮状态切换功能
 			function toggleButtonState(buttonId) {
-				updateFormatButtons();
+				
 			}
 
 			// 添加标题处理逻辑
