@@ -20,7 +20,13 @@
 	rel="stylesheet"
 />
 <style>
-	/* Add container style for centering */
+	/* 确保工具栏是 flex 布局，并且新按钮会被放置在末尾 */
+	.ql-toolbar {
+		display: flex;
+		justify-content: flex-start; /* 确保按钮按照顺序排列 */
+		flex-wrap: wrap;
+	}
+
 	.editor-container {
 		max-width: 800px;
 		margin: 0 auto;
@@ -162,7 +168,6 @@
 					[{ header: [1, 2, false] }],
 					["bold", "italic", "underline"],
 					["image", "code-block"],
-					[{ customButton: "Insert Table" }],
 				],
 			},
 		},
@@ -171,8 +176,45 @@
 		theme: "snow",
 	};
 	const quill = new Quill("#editor", options);
+	const table = quill.getModule("table");
+	// 创建一个自定义按钮
+	const CustomButton = function () {
+		const button = document.createElement("button");
+		// 创建一个 SVG 图标
+		const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+		svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+		svg.setAttribute("viewBox", "0 0 1024 1024"); // 使用你的 SVG 的 viewBox
+		svg.setAttribute("width", "20"); // 设置图标宽度
+		svg.setAttribute("height", "20"); // 设置图标高度
+		svg.setAttribute("t", "1737353285482"); // 你的 SVG 中的自定义属性
+		svg.setAttribute("p-id", "4300"); // 你的 SVG 中的自定义属性
+
+		// 创建表格图标的路径
+		const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+		path.setAttribute(
+			"d",
+			"M959.825022 384.002258V191.939717C959.825022 121.2479 902.517291 63.940169 831.825474 63.940169H191.939717C121.2479 63.940169 63.940169 121.2479 63.940169 191.939717v639.885757C63.940169 902.517291 121.2479 959.825022 191.939717 959.825022h639.885757c70.691817 0 127.999548-57.307731 127.999548-127.999548V384.002258zM146.66502 146.66502a63.737872 63.737872 0 0 1 45.336109-18.784682h639.997742A63.961844 63.961844 0 0 1 895.884854 192.001129V320.062089H127.880338V192.001129A63.737872 63.737872 0 0 1 146.66502 146.66502z m269.1267 461.308451v-223.971213h192.181751v223.971213h-192.181751z m192.181751 63.940169v223.971214h-192.181751v-223.971214h192.181751z m-256.12192-63.940169H127.880338v-223.971213h223.971213v223.971213z m-205.186531 269.235073a63.466939 63.466939 0 0 1-18.784682-45.209673V671.91364h223.971213v223.971214H192.001129a63.625887 63.625887 0 0 1-45.336109-18.67631z m749.219834-45.209673A63.763159 63.763159 0 0 1 831.998871 895.884854H671.91364v-223.971214h223.971214v160.085231z m0-224.0254h-223.971214v-223.971213h223.971214v223.971213z"
+		);
+		path.setAttribute("fill", "#000"); // 设置图标颜色
+		path.setAttribute("p-id", "4301"); // 你的 SVG 中的自定义属性
+
+		// 将路径添加到 SVG 中
+		svg.appendChild(path);
+
+		// 将 SVG 图标添加到按钮
+		button.appendChild(svg);
+		button.onclick = function () {
+			// 在按钮点击时触发的功能
+			console.log("Insert Table clicked!");
+			table.insertTable(3, 3);
+		};
+		return button;
+	};
 	const toolbar = quill.getModule("toolbar");
 	const toolbarContainer = toolbar.container;
+
+	const customButton = new CustomButton();
+	toolbarContainer.appendChild(customButton);
 
 	let currentRange = null;
 
@@ -182,12 +224,11 @@
 	const aiResponse = document.getElementById("aiResponse");
 	const actionButtons = document.getElementById("actionButtons");
 
-	const table = quill.getModule("table");
-	document
-		.querySelector(".ql-customButton")
-		.addEventListener("click", function () {
-			table.insertTable(3, 3);
-		});
+	// document
+	// 	.querySelector(".ql-customButton")
+	// 	.addEventListener("click", function () {
+	// 		table.insertTable(3, 3);
+	// 	});
 
 	// 选中内容部分的高亮处理
 	function highlightSelection(range) {
@@ -335,10 +376,10 @@
 				quill.getSelection() && quill.getSelection().length > 0;
 			const isToolbar = toolbarContainer.contains(target);
 
-			console.log(
+			/* 			console.log(
 				"toolbarContainers > target",
 				toolbarContainer.contains(target)
-			);
+			); */
 
 			// 如果点击在允许区域外，且不是在选择文本
 			if (!isInFloatingInput && !hasSelection && !isInVerticalMenu) {
