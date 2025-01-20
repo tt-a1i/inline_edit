@@ -162,6 +162,7 @@
 			console.log("🚀 ~ !range:", !range)
 			// 点击编辑器外部时隐藏输入框，但点击输入框本身时不隐藏
 			if (!floatingInput.contains(document.activeElement)) {
+				clearHighlight();
 				floatingInput.style.display = "none";
 			}
 		}
@@ -192,6 +193,7 @@
 		const delay = 50; // 每个字符插入的延迟时间（毫秒）
 
 		if (isReplace) {
+			clearHighlight();
 			quill.deleteText(currentRange.index, currentRange.length);
 		}
 
