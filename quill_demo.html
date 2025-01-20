@@ -3,6 +3,22 @@
 	href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css"
 	rel="stylesheet"
 />
+<!-- <script
+	src="https://cdnjs.cloudflare.com/ajax/libs/quill/2.0.0-dev.3/quill.min.js"
+	type="text/javascript"
+></script> -->
+<script
+	src="https://unpkg.com/quill-table-ui@1.0.5/dist/umd/index.js"
+	type="text/javascript"
+></script>
+<!-- <link
+	href="https://cdnjs.cloudflare.com/ajax/libs/quill/2.0.0-dev.3/quill.snow.min.css"
+	rel="stylesheet"
+/> -->
+<link
+	href="https://unpkg.com/quill-table-ui@1.0.5/dist/index.css"
+	rel="stylesheet"
+/>
 <style>
 	/* Add container style for centering */
 	.editor-container {
@@ -98,6 +114,12 @@
 	.menu-item + .menu-item {
 		border-top: 1px solid #eee;
 	}
+
+	.ql-customButton::before {
+		font-family: "Font Awesome 5 Free";
+		content: "\f1c5"; /* 表格图标的 Unicode */
+		margin-right: 8px;
+	}
 </style>
 
 <div class="editor-container">
@@ -128,15 +150,23 @@
 </div>
 
 <script>
+	Quill.register("modules/tableUI", quillTableUI.default);
+
 	const options = {
 		// debug: "info",
 		modules: {
-			toolbar: [
-				[{ header: [1, 2, false] }],
-				["bold", "italic", "underline"],
-				["image", "code-block"],
-			],
+			table: true,
+			tableUI: true,
+			toolbar: {
+				container: [
+					[{ header: [1, 2, false] }],
+					["bold", "italic", "underline"],
+					["image", "code-block"],
+					[{ customButton: "Insert Table" }],
+				],
+			},
 		},
+
 		placeholder: "Compose an epic...",
 		theme: "snow",
 	};
@@ -145,12 +175,19 @@
 	const toolbarContainer = toolbar.container;
 
 	let currentRange = null;
-	
+
 	const floatingInput = document.getElementById("floatingInput");
 	const promptInput = document.getElementById("promptInput");
 	const sendBtn = document.getElementById("sendBtn");
 	const aiResponse = document.getElementById("aiResponse");
 	const actionButtons = document.getElementById("actionButtons");
+
+	const table = quill.getModule("table");
+	document
+		.querySelector(".ql-customButton")
+		.addEventListener("click", function () {
+			table.insertTable(3, 3);
+		});
 
 	// 选中内容部分的高亮处理
 	function highlightSelection(range) {
@@ -179,10 +216,10 @@
 	 * 通过发布订阅模式，在选中文本时quill内部emit对应的时间名的回调
 	 */
 	quill.on("selection-change", function (range, oldRange, source) {
-		console.log("🚀 ~ range:", range)
+		console.log("🚀 ~ range:", range);
 		if (range && range.length > 0) {
 			//选中内容后，继续选中新的内容时，清除之前选中内容的高亮
-			if(currentRange) clearHighlight();
+			if (currentRange) clearHighlight();
 
 			//getBounds() 方法用于获取文本选区的位置和尺寸信息,相对于左上角原点
 			const bounds = quill.getBounds(range.index, range.length);
@@ -204,17 +241,19 @@
 			floatingInput.style.left = `${leftPosition}px`;
 
 			// 设置垂直菜单的位置，在对话框下方
-			const verticalMenu = document.getElementById('verticalMenu');
+			const verticalMenu = document.getElementById("verticalMenu");
 			verticalMenu.style.display = "block";
-			verticalMenu.style.top = `${topPosition + floatingInput.offsetHeight + 10}px`;
+			verticalMenu.style.top = `${
+				topPosition + floatingInput.offsetHeight + 10
+			}px`;
 			verticalMenu.style.left = `${leftPosition}px`;
 		} else if (!range) {
-			console.log("🚀 ~ !range:", !range)
+			console.log("🚀 ~ !range:", !range);
 			// 点击编辑器外部时隐藏输入框，但点击输入框本身时不隐藏
 			if (!floatingInput.contains(document.activeElement)) {
 				clearHighlight();
 				floatingInput.style.display = "none";
-				const verticalMenu = document.getElementById('verticalMenu');
+				const verticalMenu = document.getElementById("verticalMenu");
 				verticalMenu.style.display = "none"; // 隐藏菜单
 			}
 		}
@@ -287,7 +326,7 @@
 		// 延迟执行以确保selection-change事件先触发
 		setTimeout(() => {
 			const target = event.target;
-			const verticalMenu = document.getElementById('verticalMenu');
+			const verticalMenu = document.getElementById("verticalMenu");
 			const isInVerticalMenu = verticalMenu.contains(target);
 			// 检查点击目标是否在允许的区域内
 			const isInFloatingInput = floatingInput.contains(target);
@@ -296,7 +335,10 @@
 				quill.getSelection() && quill.getSelection().length > 0;
 			const isToolbar = toolbarContainer.contains(target);
 
-			console.log("toolbarContainers > target" ,toolbarContainer.contains(target))
+			console.log(
+				"toolbarContainers > target",
+				toolbarContainer.contains(target)
+			);
 
 			// 如果点击在允许区域外，且不是在选择文本
 			if (!isInFloatingInput && !hasSelection && !isInVerticalMenu) {
@@ -311,8 +353,8 @@
 	});
 
 	// 添加菜单项点击事件
-	document.querySelectorAll('.menu-item').forEach(item => {
-		item.addEventListener('click', function() {
+	document.querySelectorAll(".menu-item").forEach((item) => {
+		item.addEventListener("click", function () {
 			const actionText = this.textContent.trim();
 			promptInput.value = actionText;
 			sendBtn.click();
