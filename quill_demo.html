@@ -24,9 +24,12 @@
 <script src="https://unpkg.com/docx@7.1.0/build/index.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <!-- 添加 Font Awesome 图标库 -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<link
+	rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+/>
 <style>
-	/* 确保工具栏是 flex 布局，并且新按钮会被放置在末尾 */
+	/* flex 布局，新按钮会被放置在末尾 */
 	.ql-toolbar {
 		display: flex;
 		justify-content: flex-start; /* 确保按钮按照顺序排列 */
@@ -45,7 +48,7 @@
 	}
 
 	.floating-input {
-		position: fixed; /* 改为 fixed 定位 */
+		position: fixed;
 		display: none;
 		background: white;
 		box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -71,10 +74,30 @@
 	.send-btn {
 		background: #409eff;
 		border: none;
-		border-radius: 4px;
-		padding: 8px;
+		border-radius: 8px;
+		padding: 8px 16px;
 		color: white;
 		cursor: pointer;
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		transition: all 0.3s ease;
+		font-size: 14px;
+	}
+
+	.send-btn:hover {
+		background: #66b1ff;
+		transform: translateY(-1px);
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	}
+
+	.send-btn:active {
+		transform: translateY(0);
+		box-shadow: none;
+	}
+
+	.send-btn i {
+		font-size: 14px;
 	}
 
 	.ai-response {
@@ -202,14 +225,17 @@
 <div class="editor-container">
 	<div id="editor">
 		<h2>Demo Content</h2>
-		<p>Preset build with <code>snow</code> theme, and some common formats.</p>
+		<p>Preset build with snow theme, and some common formats.</p>
 	</div>
 </div>
 
 <div class="floating-input" id="floatingInput">
 	<div class="input-container">
 		<input type="text" id="promptInput" placeholder="输入提示..." />
-		<button class="send-btn" id="sendBtn">✈️</button>
+		<button class="send-btn" id="sendBtn">
+			<i class="fas fa-paper-plane"></i>
+			<span>发送</span>
+		</button>
 	</div>
 	<div class="ai-response" id="aiResponse"></div>
 	<div class="action-buttons" id="actionButtons">
@@ -245,19 +271,19 @@
 				container: [
 					[{ header: [1, 2, false] }],
 					["bold", "italic", "underline"],
-					["image", "code-block"],
-					[{ list: 'ordered' }, { list: 'bullet' }],
+					["code-block"],
+					[{ list: "ordered" }, { list: "bullet" }],
 					["table"], // 添加表格按钮
 					["export"], // 统一的导出按钮
 				],
 				handlers: {
-					export: function(value) {
+					export: function (value) {
 						showExportMenu();
 					},
-					table: function(value) {
+					table: function (value) {
 						table.insertTable(3, 3);
-					}
-				}
+					},
+				},
 			},
 		},
 
@@ -443,7 +469,7 @@
 		}, 0);
 	});
 
-	// 添加菜单项点击事件
+	// 选中后的ai菜单项点击事件
 	document.querySelectorAll(".menu-item").forEach((item) => {
 		item.addEventListener("click", function () {
 			const actionText = this.textContent.trim();
@@ -453,75 +479,76 @@
 		});
 	});
 
-	// 在 CustomButton 定义后添加
+	// 显示导出菜单
+	function showExportMenu() {
+		const exportMenu = document.getElementById("exportMenu");
+		const toolbarButton = document.querySelector(".ql-export");
+		const rect = toolbarButton.getBoundingClientRect();
+
+		exportMenu.style.display = "block";
+		exportMenu.style.top = `${rect.bottom + window.scrollY}px`;
+		exportMenu.style.left = `${rect.left}px`;
+	}
+
+	// 点击其他地方关闭导出菜单
+	document.addEventListener("click", function (e) {
+		const exportMenu = document.getElementById("exportMenu");
+		const exportButton = document.querySelector(".ql-export");
+		if (!exportMenu.contains(e.target) && !exportButton.contains(e.target)) {
+			exportMenu.style.display = "none";
+		}
+	});
+
+	// markdown导出功能
 	function exportToMarkdown() {
 		// 创建 TurndownService 实例
 		const turndownService = new TurndownService({
-			headingStyle: 'atx',
-			codeBlock: '```',
-			emDelimiter: '_'
+			headingStyle: "atx",
+			codeBlock: "```",
+			emDelimiter: "_",
 		});
 
 		// 获取编辑器内容
 		const htmlContent = quill.root.innerHTML;
-		
+
 		// 转换为 Markdown
 		const markdownContent = turndownService.turndown(htmlContent);
 
 		// 创建 Blob
-		const blob = new Blob([markdownContent], { type: 'text/markdown' });
-		
+		const blob = new Blob([markdownContent], { type: "text/markdown" });
+
 		// 创建下载链接
 		const url = window.URL.createObjectURL(blob);
-		const a = document.createElement('a');
+		const a = document.createElement("a");
 		a.href = url;
-		a.download = 'document.md';
-		
+		a.download = "document.md";
+
 		// 触发下载
 		document.body.appendChild(a);
 		a.click();
-		
+
 		// 清理
 		window.URL.revokeObjectURL(url);
 		document.body.removeChild(a);
 	}
 
-	function showExportMenu() {
-		const exportMenu = document.getElementById('exportMenu');
-		const toolbarButton = document.querySelector('.ql-export');
-		const rect = toolbarButton.getBoundingClientRect();
-		
-		exportMenu.style.display = 'block';
-		exportMenu.style.top = `${rect.bottom + window.scrollY}px`;
-		exportMenu.style.left = `${rect.left}px`;
-	}
-
 	// 添加导出功能
-	document.querySelectorAll('.export-menu-item').forEach(item => {
-		item.addEventListener('click', function() {
+	document.querySelectorAll(".export-menu-item").forEach((item) => {
+		item.addEventListener("click", function () {
 			const format = this.dataset.format;
-			switch(format) {
-				case 'markdown':
+			switch (format) {
+				case "markdown":
 					exportToMarkdown();
 					break;
-				case 'docx':
+				case "docx":
 					exportToWord();
 					break;
-				case 'pdf':
+				case "pdf":
 					exportToPDF();
 					break;
 			}
-			document.getElementById('exportMenu').style.display = 'none';
+			document.getElementById("exportMenu").style.display = "none";
 		});
-	});
-
-	// 点击其他地方关闭导出菜单
-	document.addEventListener('click', function(e) {
-		const exportMenu = document.getElementById('exportMenu');
-		const exportButton = document.querySelector('.ql-export');
-		if (!exportMenu.contains(e.target) && !exportButton.contains(e.target)) {
-			exportMenu.style.display = 'none';
-		}
 	});
 
 	// 添加解析富文本的辅助函数
@@ -529,11 +556,11 @@
 		const delta = quill.getContents();
 		const paragraphs = [];
 		let currentParagraph = {
-			children: []
+			children: [],
 		};
 
-		delta.ops.forEach(op => {
-			if (op.insert && typeof op.insert === 'string') {
+		delta.ops.forEach((op) => {
+			if (op.insert && typeof op.insert === "string") {
 				// 创建文本运行对象
 				const textRun = new window.docx.TextRun({
 					text: op.insert,
@@ -544,22 +571,24 @@
 				});
 
 				// 处理段落换行
-				if (op.insert.includes('\n')) {
-					const texts = op.insert.split('\n');
+				if (op.insert.includes("\n")) {
+					const texts = op.insert.split("\n");
 					texts.forEach((text, index) => {
 						if (text) {
-							currentParagraph.children.push(new window.docx.TextRun({
-								text: text,
-								bold: op.attributes?.bold || false,
-								italics: op.attributes?.italic || false,
-								underline: op.attributes?.underline ? {} : undefined,
-							}));
+							currentParagraph.children.push(
+								new window.docx.TextRun({
+									text: text,
+									bold: op.attributes?.bold || false,
+									italics: op.attributes?.italic || false,
+									underline: op.attributes?.underline ? {} : undefined,
+								})
+							);
 						}
 						if (index < texts.length - 1) {
 							// 添加当前段落并创建新段落
 							paragraphs.push(new window.docx.Paragraph(currentParagraph));
 							currentParagraph = {
-								children: []
+								children: [],
 							};
 						}
 					});
@@ -585,23 +614,25 @@
 
 			// 创建文档
 			const docDocument = new window.docx.Document({
-				sections: [{
-					properties: {},
-					children: paragraphs
-				}],
+				sections: [
+					{
+						properties: {},
+						children: paragraphs,
+					},
+				],
 			});
 
 			// 生成文档
-			window.docx.Packer.toBlob(docDocument).then(blob => {
+			window.docx.Packer.toBlob(docDocument).then((blob) => {
 				const url = window.URL.createObjectURL(blob);
-				const a = document.createElement('a');
+				const a = document.createElement("a");
 				a.href = url;
-				a.download = 'document.docx';
+				a.download = "document.docx";
 				a.click();
 				window.URL.revokeObjectURL(url);
 			});
 		} catch (error) {
-			console.error('Export to Word failed:', error);
+			console.error("Export to Word failed:", error);
 		}
 	}
 
@@ -610,9 +641,9 @@
 		const element = quill.root;
 		const opt = {
 			margin: 1,
-			filename: 'document.pdf',
+			filename: "document.pdf",
 			html2canvas: { scale: 2 },
-			jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+			jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
 		};
 
 		html2pdf().set(opt).from(element).save();
