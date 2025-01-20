@@ -100,7 +100,6 @@
 	}
 </style>
 
-<!-- Add container div -->
 <div class="editor-container">
 	<div id="editor">
 		<h2>Demo Content</h2>
@@ -120,7 +119,7 @@
 	</div>
 </div>
 
-<!-- 添加垂直菜单HTML结构 -->
+<!-- 垂直菜单HTML结构 -->
 <div class="vertical-menu" id="verticalMenu">
 	<div class="menu-item">✍️ 改写这段内容</div>
 	<div class="menu-item">🔄 生成相似内容</div>
@@ -133,7 +132,6 @@
 		// debug: "info",
 		modules: {
 			toolbar: [
-				[{ size: ["small", false, "large", "huge"] }],
 				[{ header: [1, 2, false] }],
 				["bold", "italic", "underline"],
 				["image", "code-block"],
@@ -143,8 +141,11 @@
 		theme: "snow",
 	};
 	const quill = new Quill("#editor", options);
+	const toolbar = quill.getModule("toolbar");
+	const toolbarContainer = toolbar.container;
 
 	let currentRange = null;
+	
 	const floatingInput = document.getElementById("floatingInput");
 	const promptInput = document.getElementById("promptInput");
 	const sendBtn = document.getElementById("sendBtn");
@@ -219,6 +220,7 @@
 		}
 	});
 
+	// 发送按钮点击事件
 	sendBtn.addEventListener("click", async () => {
 		const prompt = promptInput.value;
 		if (!prompt) return;
@@ -256,9 +258,10 @@
 			quill.insertText(currentPosition, text[i]);
 			currentPosition++;
 		}
-		return Promise.resolve(); // 添加这行以确保返回 Promise
+		return Promise.resolve();
 	}
 
+	// 插入内容的按钮点击事件
 	document.getElementById("insertAfter").addEventListener("click", () => {
 		if (currentRange && aiResponse.textContent) {
 			const insertIndex = currentRange.index + currentRange.length;
@@ -268,6 +271,7 @@
 		}
 	});
 
+	// 替换内容的按钮点击事件
 	document.getElementById("replace").addEventListener("click", () => {
 		if (currentRange && aiResponse.textContent) {
 			progressiveInsert(aiResponse.textContent, currentRange.index, true).then(
@@ -290,6 +294,9 @@
 			const isInEditor = quill.container.contains(target);
 			const hasSelection =
 				quill.getSelection() && quill.getSelection().length > 0;
+			const isToolbar = toolbarContainer.contains(target);
+
+			console.log("toolbarContainers > target" ,toolbarContainer.contains(target))
 
 			// 如果点击在允许区域外，且不是在选择文本
 			if (!isInFloatingInput && !hasSelection && !isInVerticalMenu) {
