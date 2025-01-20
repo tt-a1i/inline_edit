@@ -19,6 +19,10 @@
 	href="https://unpkg.com/quill-table-ui@1.0.5/dist/index.css"
 	rel="stylesheet"
 />
+<!-- 在其他 script 标签后添加 Turndown -->
+<script src="https://unpkg.com/turndown/dist/turndown.js"></script>
+<script src="https://unpkg.com/docx@7.1.0/build/index.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
 	/* 确保工具栏是 flex 布局，并且新按钮会被放置在末尾 */
 	.ql-toolbar {
@@ -126,6 +130,35 @@
 		content: "\f1c5"; /* 表格图标的 Unicode */
 		margin-right: 8px;
 	}
+
+	.ql-exportMd::before {
+		font-family: "Font Awesome 5 Free";
+		content: "\f56d"; /* Markdown icon */
+		margin-right: 8px;
+	}
+
+	.export-menu {
+		position: absolute;
+		display: none;
+		background: white;
+		box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+		border-radius: 4px;
+		z-index: 1000;
+	}
+
+	.export-menu-item {
+		padding: 8px 16px;
+		cursor: pointer;
+		white-space: nowrap;
+	}
+
+	.export-menu-item:hover {
+		background-color: #f5f5f5;
+	}
+
+	.export-menu-item + .export-menu-item {
+		border-top: 1px solid #eee;
+	}
 </style>
 
 <div class="editor-container">
@@ -155,6 +188,13 @@
 	<div class="menu-item">🎯 优化这段内容</div>
 </div>
 
+<!-- 在 editor-container div 后添加导出菜单 -->
+<div class="export-menu" id="exportMenu">
+	<div class="export-menu-item" data-format="markdown">导出为 Markdown</div>
+	<div class="export-menu-item" data-format="docx">导出为 Word</div>
+	<div class="export-menu-item" data-format="pdf">导出为 PDF</div>
+</div>
+
 <script>
 	Quill.register("modules/tableUI", quillTableUI.default);
 
@@ -168,7 +208,13 @@
 					[{ header: [1, 2, false] }],
 					["bold", "italic", "underline"],
 					["image", "code-block"],
+					["export"], // 统一的导出按钮
 				],
+				handlers: {
+					export: function(value) {
+						showExportMenu();
+					}
+				}
 			},
 		},
 
@@ -402,4 +448,169 @@
 			verticalMenu.style.display = "none"; // 隐藏菜单
 		});
 	});
+
+	// 在 CustomButton 定义后添加
+	function exportToMarkdown() {
+		// 创建 TurndownService 实例
+		const turndownService = new TurndownService({
+			headingStyle: 'atx',
+			codeBlock: '```',
+			emDelimiter: '_'
+		});
+
+		// 获取编辑器内容
+		const htmlContent = quill.root.innerHTML;
+		
+		// 转换为 Markdown
+		const markdownContent = turndownService.turndown(htmlContent);
+
+		// 创建 Blob
+		const blob = new Blob([markdownContent], { type: 'text/markdown' });
+		
+		// 创建下载链接
+		const url = window.URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = 'document.md';
+		
+		// 触发下载
+		document.body.appendChild(a);
+		a.click();
+		
+		// 清理
+		window.URL.revokeObjectURL(url);
+		document.body.removeChild(a);
+	}
+
+	function showExportMenu() {
+		const exportMenu = document.getElementById('exportMenu');
+		const toolbarButton = document.querySelector('.ql-export');
+		const rect = toolbarButton.getBoundingClientRect();
+		
+		exportMenu.style.display = 'block';
+		exportMenu.style.top = `${rect.bottom + window.scrollY}px`;
+		exportMenu.style.left = `${rect.left}px`;
+	}
+
+	// 添加导出功能
+	document.querySelectorAll('.export-menu-item').forEach(item => {
+		item.addEventListener('click', function() {
+			const format = this.dataset.format;
+			switch(format) {
+				case 'markdown':
+					exportToMarkdown();
+					break;
+				case 'docx':
+					exportToWord();
+					break;
+				case 'pdf':
+					exportToPDF();
+					break;
+			}
+			document.getElementById('exportMenu').style.display = 'none';
+		});
+	});
+
+	// 点击其他地方关闭导出菜单
+	document.addEventListener('click', function(e) {
+		const exportMenu = document.getElementById('exportMenu');
+		const exportButton = document.querySelector('.ql-export');
+		if (!exportMenu.contains(e.target) && !exportButton.contains(e.target)) {
+			exportMenu.style.display = 'none';
+		}
+	});
+
+	// 添加解析富文本的辅助函数
+	function parseQuillDelta() {
+		const delta = quill.getContents();
+		const paragraphs = [];
+		let currentParagraph = {
+			children: []
+		};
+
+		delta.ops.forEach(op => {
+			if (op.insert && typeof op.insert === 'string') {
+				// 创建文本运行对象
+				const textRun = new window.docx.TextRun({
+					text: op.insert,
+					bold: op.attributes?.bold || false,
+					italics: op.attributes?.italic || false,
+					underline: op.attributes?.underline ? {} : undefined,
+					size: op.attributes?.size ? parseInt(op.attributes.size) * 2 : 24,
+				});
+
+				// 处理段落换行
+				if (op.insert.includes('\n')) {
+					const texts = op.insert.split('\n');
+					texts.forEach((text, index) => {
+						if (text) {
+							currentParagraph.children.push(new window.docx.TextRun({
+								text: text,
+								bold: op.attributes?.bold || false,
+								italics: op.attributes?.italic || false,
+								underline: op.attributes?.underline ? {} : undefined,
+							}));
+						}
+						if (index < texts.length - 1) {
+							// 添加当前段落并创建新段落
+							paragraphs.push(new window.docx.Paragraph(currentParagraph));
+							currentParagraph = {
+								children: []
+							};
+						}
+					});
+				} else {
+					currentParagraph.children.push(textRun);
+				}
+			}
+		});
+
+		// 添加最后一个段落
+		if (currentParagraph.children.length > 0) {
+			paragraphs.push(new window.docx.Paragraph(currentParagraph));
+		}
+
+		return paragraphs;
+	}
+
+	// 更新 Word 导出功能
+	async function exportToWord() {
+		try {
+			// 解析富文本内容
+			const paragraphs = parseQuillDelta();
+
+			// 创建文档
+			const docDocument = new window.docx.Document({
+				sections: [{
+					properties: {},
+					children: paragraphs
+				}],
+			});
+
+			// 生成文档
+			window.docx.Packer.toBlob(docDocument).then(blob => {
+				const url = window.URL.createObjectURL(blob);
+				const a = document.createElement('a');
+				a.href = url;
+				a.download = 'document.docx';
+				a.click();
+				window.URL.revokeObjectURL(url);
+			});
+		} catch (error) {
+			console.error('Export to Word failed:', error);
+		}
+	}
+
+	// PDF导出功能
+	function exportToPDF() {
+		const element = quill.root;
+		const opt = {
+			margin: 1,
+			filename: 'document.pdf',
+			html2canvas: { scale: 2 },
+			jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+		};
+
+		html2pdf().set(opt).from(element).save();
+	}
 </script>
