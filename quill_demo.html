@@ -508,12 +508,54 @@
 			emDelimiter: "_",
 		});
 
+		// 添加表格转换规则
+		turndownService.addRule("table", {
+			filter: "table",
+			replacement: function (content, node) {
+				// 处理表格内容
+				const rows = node.querySelectorAll("tr");
+				let markdownTable = "";
+
+				// 处理表头
+				const headerRow = rows[0];
+				const headers = headerRow.querySelectorAll("th, td");
+				markdownTable +=
+					"| " +
+					Array.from(headers)
+						.map((header) => turndownService.turndown(header.innerHTML.trim()))
+						.join(" | ") +
+					" |\n";
+
+				// 处理表头分隔线
+				markdownTable +=
+					"| " +
+					Array.from(headers)
+						.map(() => "---")
+						.join(" | ") +
+					" |\n";
+
+				// 处理表格数据行
+				for (let i = 1; i < rows.length; i++) {
+					const cells = rows[i].querySelectorAll("td");
+					markdownTable +=
+						"| " +
+						Array.from(cells)
+							.map((cell) => turndownService.turndown(cell.innerHTML.trim()))
+							.join(" | ") +
+						" |\n";
+				}
+
+				return markdownTable;
+			},
+		});
+
 		// 获取编辑器内容
 		const htmlContent = quill.root.innerHTML;
 
 		// 转换为 Markdown
 		const markdownContent = turndownService.turndown(htmlContent);
-
+		console.log("🚀 ~ exportToMarkdown ~ markdownContent:", markdownContent)
+		
 		// 创建 Blob
 		const blob = new Blob([markdownContent], { type: "text/markdown" });
 
