@@ -554,8 +554,8 @@
 
 		// 转换为 Markdown
 		const markdownContent = turndownService.turndown(htmlContent);
-		console.log("🚀 ~ exportToMarkdown ~ markdownContent:", markdownContent)
-		
+		console.log("🚀 ~ exportToMarkdown ~ markdownContent:", markdownContent);
+
 		// 创建 Blob
 		const blob = new Blob([markdownContent], { type: "text/markdown" });
 
@@ -593,86 +593,123 @@
 		});
 	});
 
-	// 添加解析富文本的辅助函数
-	function parseQuillDelta() {
-		const delta = quill.getContents();
+	// 更新 Word 导出功能
+	function htmlTableToDocxTable(htmlTable) {
+    const rows = [];
+    htmlTable.querySelectorAll("tr").forEach((tr) => {
+        const cells = [];
+        tr.querySelectorAll("th, td").forEach((td) => {
+            const paragraph = new docx.Paragraph({
+                children: [new docx.TextRun(td.textContent)],
+            });
+            cells.push(new docx.TableCell({ children: [paragraph] }));
+        });
+
+        // 设置行高
+        rows.push(
+            new docx.TableRow({
+                children: cells,
+                height: {
+                    value: 800, // 行高值（单位为 dxa，1/20 磅）
+                    rule: docx.HeightRule.ATLEAST, // 行高规则
+                },
+            })
+        );
+    });
+
+    // 设置表格宽度和列宽
+    return new docx.Table({
+        rows,
+        width: {
+            size: 100, // 表格宽度为 100%
+            type: docx.WidthType.PERCENTAGE,
+        },
+        columnWidths: [3000, 3000], // 每列宽度（单位为 dxa）
+    });
+}
+
+	// 将 HTML 内容转换为 docx 段落
+	function htmlToDocxParagraphs(element) {
 		const paragraphs = [];
-		let currentParagraph = {
-			children: [],
-		};
-
-		delta.ops.forEach((op) => {
-			if (op.insert && typeof op.insert === "string") {
-				// 创建文本运行对象
-				const textRun = new window.docx.TextRun({
-					text: op.insert,
-					bold: op.attributes?.bold || false,
-					italics: op.attributes?.italic || false,
-					underline: op.attributes?.underline ? {} : undefined,
-					size: op.attributes?.size ? parseInt(op.attributes.size) * 2 : 24,
-				});
-
-				// 处理段落换行
-				if (op.insert.includes("\n")) {
-					const texts = op.insert.split("\n");
-					texts.forEach((text, index) => {
-						if (text) {
-							currentParagraph.children.push(
-								new window.docx.TextRun({
-									text: text,
-									bold: op.attributes?.bold || false,
-									italics: op.attributes?.italic || false,
-									underline: op.attributes?.underline ? {} : undefined,
-								})
-							);
-						}
-						if (index < texts.length - 1) {
-							// 添加当前段落并创建新段落
-							paragraphs.push(new window.docx.Paragraph(currentParagraph));
-							currentParagraph = {
-								children: [],
-							};
-						}
-					});
+		element.childNodes.forEach((node) => {
+			if (node.nodeType === Node.TEXT_NODE) {
+				// 处理文本节点
+				if (node.textContent.trim()) {
+					paragraphs.push(
+						new docx.Paragraph({
+							children: [new docx.TextRun(node.textContent)],
+						})
+					);
+				}
+			} else if (node.nodeType === Node.ELEMENT_NODE) {
+				// 处理元素节点
+				if (node.tagName === "P") {
+					// 段落
+					paragraphs.push(
+						new docx.Paragraph({
+							children: [new docx.TextRun(node.textContent)],
+						})
+					);
+				} else if (node.tagName === "TABLE") {
+					// 表格
+					paragraphs.push(htmlTableToDocxTable(node));
+				} else if (node.tagName === "STRONG" || node.tagName === "B") {
+					// 加粗文本
+					paragraphs.push(
+						new docx.Paragraph({
+							children: [
+								new docx.TextRun({ text: node.textContent, bold: true }),
+							],
+						})
+					);
+				} else if (node.tagName === "EM" || node.tagName === "I") {
+					// 斜体文本
+					paragraphs.push(
+						new docx.Paragraph({
+							children: [
+								new docx.TextRun({ text: node.textContent, italics: true }),
+							],
+						})
+					);
 				} else {
-					currentParagraph.children.push(textRun);
+					// 其他元素（如 div、span 等）
+					paragraphs.push(
+						new docx.Paragraph({
+							children: [new docx.TextRun(node.textContent)],
+						})
+					);
 				}
 			}
 		});
-
-		// 添加最后一个段落
-		if (currentParagraph.children.length > 0) {
-			paragraphs.push(new window.docx.Paragraph(currentParagraph));
-		}
-
 		return paragraphs;
 	}
 
-	// 更新 Word 导出功能
+	// 导出为 Word 文档
 	async function exportToWord() {
 		try {
-			// 解析富文本内容
-			const paragraphs = parseQuillDelta();
+			const element = quill.root; // 获取 Quill 的根 DOM 元素
 
-			// 创建文档
-			const docDocument = new window.docx.Document({
+			// 将 HTML 内容转换为 docx 段落
+			const paragraphs = htmlToDocxParagraphs(element);
+
+			// 创建 Word 文档
+			const docDocument = new docx.Document({
 				sections: [
 					{
 						properties: {},
-						children: paragraphs,
+						children: paragraphs, // 添加段落和表格
 					},
 				],
 			});
 
-			// 生成文档
-			window.docx.Packer.toBlob(docDocument).then((blob) => {
-				const url = window.URL.createObjectURL(blob);
-				const a = document.createElement("a");
-				a.href = url;
-				a.download = "document.docx";
-				a.click();
-				window.URL.revokeObjectURL(url);
-			});
+			// 生成并下载 Word 文件
+			const blob = await docx.Packer.toBlob(docDocument);
+			const url = window.URL.createObjectURL(blob);
+			const a = document.createElement("a");
+			a.href = url;
+			a.download = "export.docx";
+			a.click();
+			window.URL.revokeObjectURL(url);
 		} catch (error) {
 			console.error("Export to Word failed:", error);
 		}
