@@ -3,18 +3,10 @@
 	href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css"
 	rel="stylesheet"
 />
-<!-- <script
-	src="https://cdnjs.cloudflare.com/ajax/libs/quill/2.0.0-dev.3/quill.min.js"
-	type="text/javascript"
-></script> -->
 <script
 	src="https://unpkg.com/quill-table-ui@1.0.5/dist/umd/index.js"
 	type="text/javascript"
 ></script>
-<!-- <link
-	href="https://cdnjs.cloudflare.com/ajax/libs/quill/2.0.0-dev.3/quill.snow.min.css"
-	rel="stylesheet"
-/> -->
 <link
 	href="https://unpkg.com/quill-table-ui@1.0.5/dist/index.css"
 	rel="stylesheet"
@@ -300,12 +292,6 @@
 	const sendBtn = document.getElementById("sendBtn");
 	const aiResponse = document.getElementById("aiResponse");
 	const actionButtons = document.getElementById("actionButtons");
-
-	// document
-	// 	.querySelector(".ql-customButton")
-	// 	.addEventListener("click", function () {
-	// 		table.insertTable(3, 3);
-	// 	});
 
 	// 选中内容部分的高亮处理
 	function highlightSelection(range) {
@@ -595,38 +581,38 @@
 
 	// 更新 Word 导出功能
 	function htmlTableToDocxTable(htmlTable) {
-    const rows = [];
-    htmlTable.querySelectorAll("tr").forEach((tr) => {
-        const cells = [];
-        tr.querySelectorAll("th, td").forEach((td) => {
-            const paragraph = new docx.Paragraph({
-                children: [new docx.TextRun(td.textContent)],
-            });
-            cells.push(new docx.TableCell({ children: [paragraph] }));
-        });
+		const rows = [];
+		htmlTable.querySelectorAll("tr").forEach((tr) => {
+			const cells = [];
+			tr.querySelectorAll("th, td").forEach((td) => {
+				const paragraph = new docx.Paragraph({
+					children: [new docx.TextRun(td.textContent)],
+				});
+				cells.push(new docx.TableCell({ children: [paragraph] }));
+			});
 
-        // 设置行高
-        rows.push(
-            new docx.TableRow({
-                children: cells,
-                height: {
-                    value: 800, // 行高值（单位为 dxa，1/20 磅）
-                    rule: docx.HeightRule.ATLEAST, // 行高规则
-                },
-            })
-        );
-    });
+			// 设置行高
+			rows.push(
+				new docx.TableRow({
+					children: cells,
+					height: {
+						value: 800, // 行高值（单位为 dxa，1/20 磅）
+						rule: docx.HeightRule.ATLEAST, // 行高规则
+					},
+				})
+			);
+		});
 
-    // 设置表格宽度和列宽
-    return new docx.Table({
-        rows,
-        width: {
-            size: 100, // 表格宽度为 100%
-            type: docx.WidthType.PERCENTAGE,
-        },
-        columnWidths: [3000, 3000], // 每列宽度（单位为 dxa）
-    });
-}
+		// 设置表格宽度和列宽
+		return new docx.Table({
+			rows,
+			width: {
+				size: 100, // 表格宽度为 100%
+				type: docx.WidthType.PERCENTAGE,
+			},
+			columnWidths: [3000, 3000], // 每列宽度（单位为 dxa）
+		});
+	}
 
 	// 将 HTML 内容转换为 docx 段落
 	function htmlToDocxParagraphs(element) {
