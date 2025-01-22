@@ -20,6 +20,8 @@
 	rel="stylesheet"
 	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
 />
+<!-- 在其他 script 标签后添加 markdown-it -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/13.0.1/markdown-it.min.js"></script>
 <style>
 	/* flex 布局，新按钮会被放置在末尾 */
 	.ql-toolbar {
@@ -32,6 +34,8 @@
 		max-width: 800px;
 		margin: 0 auto;
 		padding: 20px;
+		background-color: #f9fafd;
+		min-height: 100vh;
 	}
 
 	.ql-container .ql-editor::selection,
@@ -212,6 +216,42 @@
 	.ql-table:hover {
 		color: #06c;
 	}
+
+	/* 测试按钮样式 */
+	.test-markdown-btn {
+		position: fixed;
+		bottom: 20px;
+		right: 20px;
+		padding: 10px 20px;
+		background: #409eff;
+		color: white;
+		border: none;
+		border-radius: 4px;
+		cursor: pointer;
+		z-index: 1000;
+	}
+
+	.test-markdown-btn:hover {
+		background: #66b1ff;
+	}
+
+	/* 添加编辑器背景色 */
+	.ql-container.ql-snow {
+		background-color: #ffffff;
+		border-radius: 0 0 4px 4px;
+	}
+
+	.ql-toolbar.ql-snow {
+		border-radius: 4px 4px 0 0;
+		background-color: #ffffff;
+	}
+
+	/* 添加body背景色 */
+	body {
+		margin: 0;
+		padding: 0;
+		background-color: #f9fafd;
+	}
 </style>
 
 <div class="editor-container">
@@ -251,6 +291,11 @@
 	<div class="export-menu-item" data-format="pdf">导出为 PDF</div>
 </div>
 
+<!-- 在 body 最后添加测试按钮 -->
+<button class="test-markdown-btn" onclick="testMarkdownRender()">
+	测试 Markdown 渲染
+</button>
+
 <script>
 	Quill.register("modules/tableUI", quillTableUI.default);
 
@@ -263,7 +308,7 @@
 				container: [
 					[{ header: [1, 2, false] }],
 					["bold", "italic", "underline"],
-					["code-block"],
+					// ["code-block"],
 					[{ list: "ordered" }, { list: "bullet" }],
 					["table"], // 添加表格按钮
 					["export"], // 统一的导出按钮
@@ -712,5 +757,91 @@
 		};
 
 		html2pdf().set(opt).from(element).save();
+	}
+
+	// 修改 Markdown 渲染功能
+	function renderMarkdown(markdownText) {
+		try {
+			const md = window
+				.markdownit({
+					html: true,
+					breaks: true,
+					linkify: true,
+				})
+				.use(function (md) {
+					// 自定义表格和代码块渲染
+					md.renderer.rules.table_close = function () {
+						return "</table>\n";
+					};
+					
+					// 修改代码块渲染规则（code_block 和 fence）
+					md.renderer.rules.code_block = function (tokens, idx) {
+						//代码块的格式支持
+						/* return (
+							// "<pre><code>" +
+							md.utils.escapeHtml(tokens[idx].content) + "\n"
+							// "</code></pre>\n"
+						); */
+						return md.utils.escapeHtml(tokens[idx].content) + "\n";
+					};
+
+					md.renderer.rules.fence = function (tokens, idx) {
+						return md.utils.escapeHtml(tokens[idx].content) + "\n";
+					};
+				});
+
+			const html = md.render(markdownText);
+
+			// 获取当前光标位置
+			const currentSelection = quill.getSelection();
+			let cursorPosition = currentSelection
+				? currentSelection.index
+				: quill.getLength();
+
+			// 在光标位置插入 HTML
+			quill.clipboard.dangerouslyPasteHTML(cursorPosition, html);
+
+			// 计算新光标位置（插入内容的长度）
+			const delta = quill.clipboard.convert(html);
+			const insertedLength = delta.reduce(
+				(acc, op) => acc + (op.insert ? op.insert.length || 1 : 0),
+				0
+			);
+
+			// 移动光标到插入内容末尾
+			quill.setSelection(cursorPosition + insertedLength, 0);
+		} catch (error) {
+			console.error("Markdown rendering failed:", error);
+		}
+	}
+
+	// 测试用的 Markdown 文本
+	const testMarkdown = `# 这是一个标题
+
+这是一段普通文本，包含**粗体**和*斜体*。
+
+## 列表示例
+- 项目 1
+- 项目 2
+  - 子项目 A
+  - 子项目 B
+
+## 代码示例
+\`\`\`javascript
+function hello() {
+    console.log("Hello, World!");
+}
+\`\`\`
+
+## 表格示例
+| 列1 | 列2 | 列3 |
+|-----|-----|-----|
+| A1  | B1  | C1  |
+| A2  | B2  | C2  |
+`;
+
+	// 测试渲染函数
+	function testMarkdownRender() {
+		renderMarkdown(testMarkdown);
 	}
 </script>
