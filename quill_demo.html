@@ -1,3 +1,4 @@
+
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
 <link
 	href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css"
@@ -254,7 +255,8 @@
 	}
 
 	/* 添加撤销重做按钮样式 */
-	.ql-undo, .ql-redo {
+	.ql-undo,
+	.ql-redo {
 		position: relative;
 		width: 28px;
 		height: 24px;
@@ -277,7 +279,8 @@
 		font-size: 14px;
 	}
 
-	.ql-undo:hover, .ql-redo:hover {
+	.ql-undo:hover,
+	.ql-redo:hover {
 		color: #06c;
 	}
 </style>
@@ -325,6 +328,9 @@
 </button>
 
 <script>
+	//TODO diff
+	//TODO 问答对话框的逻辑完善
+	//TODO 在底部进行选中内容时的菜单栏在不可见范围内的处理
 	Quill.register("modules/tableUI", quillTableUI.default);
 
 	const options = {
@@ -334,7 +340,7 @@
 			tableUI: true,
 			toolbar: {
 				container: [
-					['undo', 'redo'], // 添加撤销重做按钮
+					["undo", "redo"], // 添加撤销重做按钮
 					[{ header: [1, 2, 3, false] }],
 					["bold", "italic", "underline"],
 					// ["code-block"],
@@ -343,10 +349,10 @@
 					["export"], // 统一的导出按钮
 				],
 				handlers: {
-					undo: function() {
+					undo: function () {
 						quill.history.undo();
 					},
-					redo: function() {
+					redo: function () {
 						quill.history.redo();
 					},
 					export: function (value) {
@@ -361,8 +367,8 @@
 				delay: 1000,
 				maxStack: 500,
 				//true表示只有用户操作才会被记录，false表示所有操作都会被记录
-				userOnly: false
-			}
+				userOnly: false,
+			},
 		},
 
 		placeholder: "Compose an epic...",
@@ -814,7 +820,7 @@
 					md.renderer.rules.table_close = function () {
 						return "</table>\n";
 					};
-					
+
 					// 修改代码块渲染规则（code_block 和 fence）
 					md.renderer.rules.code_block = function (tokens, idx) {
 						//代码块的格式支持
