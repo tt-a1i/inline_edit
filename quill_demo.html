@@ -252,6 +252,34 @@
 		padding: 0;
 		background-color: #f9fafd;
 	}
+
+	/* 添加撤销重做按钮样式 */
+	.ql-undo, .ql-redo {
+		position: relative;
+		width: 28px;
+		height: 24px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.ql-undo::before {
+		font-family: "Font Awesome 5 Free";
+		content: "\f0e2"; /* undo 图标 */
+		font-weight: 900;
+		font-size: 14px;
+	}
+
+	.ql-redo::before {
+		font-family: "Font Awesome 5 Free";
+		content: "\f01e"; /* redo 图标 */
+		font-weight: 900;
+		font-size: 14px;
+	}
+
+	.ql-undo:hover, .ql-redo:hover {
+		color: #06c;
+	}
 </style>
 
 <div class="editor-container">
@@ -306,7 +334,8 @@
 			tableUI: true,
 			toolbar: {
 				container: [
-					[{ header: [1, 2, false] }],
+					['undo', 'redo'], // 添加撤销重做按钮
+					[{ header: [1, 2, 3, false] }],
 					["bold", "italic", "underline"],
 					// ["code-block"],
 					[{ list: "ordered" }, { list: "bullet" }],
@@ -314,6 +343,12 @@
 					["export"], // 统一的导出按钮
 				],
 				handlers: {
+					undo: function() {
+						quill.history.undo();
+					},
+					redo: function() {
+						quill.history.redo();
+					},
 					export: function (value) {
 						showExportMenu();
 					},
@@ -322,6 +357,11 @@
 					},
 				},
 			},
+			history: {
+				delay: 1000,
+				maxStack: 500,
+				userOnly: true
+			}
 		},
 
 		placeholder: "Compose an epic...",
