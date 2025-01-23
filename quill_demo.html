@@ -1,4 +1,4 @@
-<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+﻿<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
 <link
 	href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css"
 	rel="stylesheet"
@@ -98,28 +98,40 @@
 	}
 
 	.ai-response {
-		background: #f5f5f5;
-		padding: 10px;
-		border-radius: 4px;
+		background: #f8f9fa;
+		padding: 15px;
+		border-radius: 8px;
 		margin-top: 10px;
 		display: none;
+		border: 1px solid #e9ecef;
+		font-size: 14px;
+		line-height: 1.6;
+		color: #495057;
 	}
 
 	.action-buttons {
 		display: none;
+		justify-content: space-between;
 		gap: 8px;
-		margin-top: 8px;
-		padding: 8px;
-		background: #fff;
-		border-radius: 4px;
-		box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+		margin-top: 12px;
+		padding-top: 12px;
+		border-top: 1px solid #e9ecef;
 	}
 
 	.action-buttons button {
-		padding: 4px 8px;
+		padding: 6px 12px;
 		border: 1px solid #ddd;
-		border-radius: 4px;
+		border-radius: 6px;
 		cursor: pointer;
+		background: #fff;
+		color: #409eff;
+		font-size: 13px;
+		transition: all 0.3s ease;
+	}
+
+	.action-buttons button:hover {
+		background: #ecf5ff;
+		border-color: #409eff;
 	}
 
 	.highlight-selection {
@@ -346,8 +358,6 @@
 		<p>Preset build with snow theme, and some common formats.</p>
 		<p>Preset build with snow theme, and some common formats.</p>
 		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
 	</div>
 </div>
 
@@ -359,10 +369,18 @@
 			<span>发送</span>
 		</button>
 	</div>
-	<div class="ai-response" id="aiResponse"></div>
-	<div class="action-buttons" id="actionButtons">
-		<button id="insertAfter">插入到后面</button>
-		<button id="replace">替换选中内容</button>
+	<div class="ai-response" id="aiResponse">
+		<div class="response-content"></div>
+		<div class="action-buttons" id="actionButtons">
+			<button id="insertAfter">
+				<i class="fas fa-plus"></i>
+				插入到后面
+			</button>
+			<button id="replace">
+				<i class="fas fa-exchange-alt"></i>
+				替换选中内容
+			</button>
+		</div>
 	</div>
 </div>
 
@@ -472,7 +490,7 @@
 	 * 通过发布订阅模式，在选中文本时quill内部emit对应的时间名的回调
 	 */
 	quill.on("selection-change", function (range, oldRange, source) {
-		console.log("🚀 ~ range:", range);
+		// console.log("🚀 ~ range:", range);
 		if (range && range.length > 0) {
 			//选中内容后，继续选中新的内容时，清除之前选中内容的高亮
 			if (currentRange) clearHighlight();
@@ -504,7 +522,6 @@
 			// 显示所有元素以获取正确高度
 			floatingInput.style.display = "block";
 			verticalMenu.style.display = "block";
-			// 不显示 aiResponse，它只在需要时显示
 			aiResponse.style.display = "none";
 
 			// 获取所有元素高度
@@ -539,6 +556,7 @@
 					topPosition + dimensions.verticalMenu + ELEMENT_SPACING
 				}px`;
 			} else {
+				console.log(2)
 				// 向下布局模式
 				// 从上到下布局：输入框 -> 垂直菜单
 				floatingInput.style.top = `${topPosition}px`;
@@ -557,7 +575,7 @@
 			aiResponse.style.position = "fixed";
 			aiResponse.style.left = `${leftPosition}px`;
 		} else if (!range) {
-			console.log("🚀 ~ !range:", !range);
+			// console.log("🚀 ~ !range:", !range);
 			// 点击编辑器外部时隐藏输入框，但点击输入框本身时不隐藏
 			if (!floatingInput.contains(document.activeElement)) {
 				clearHighlight();
@@ -579,10 +597,11 @@
 			? quill.getText(currentRange.index, currentRange.length)
 			: "";
 
-		// 模拟AI响应
-		verticalMenu.style.display = "none"; // 隐藏菜单
+		// 显示AI响应区域
+		verticalMenu.style.display = "none";
 		aiResponse.style.display = "block";
-		aiResponse.textContent = "正在生成回答...";
+		const responseContent = aiResponse.querySelector('.response-content');
+		responseContent.textContent = "正在生成回答...";
 
 		// 设置 AI 响应位置在输入框下方
 		const inputRect = floatingInput.getBoundingClientRect();
@@ -590,18 +609,8 @@
 
 		// 模拟API调用延迟
 		setTimeout(() => {
-			aiResponse.textContent = `选中的文本是：${selectedText}  AI的回答：${prompt}`;
-			
-			// 获取更新后的 AI 响应区域位置
-			const aiResponseRect = aiResponse.getBoundingClientRect();
-			
-			// 显示操作按钮并设置位置
+			responseContent.textContent = `选中的文本是：${selectedText}\nAI的回答：${prompt}`;
 			actionButtons.style.display = "flex";
-			actionButtons.style.position = "fixed";
-			actionButtons.style.top = `${aiResponseRect.bottom + 5}px`;
-			actionButtons.style.left = `${aiResponseRect.left}px`;
-			actionButtons.style.width = `${aiResponse.offsetWidth}px`;
-
 		}, 1000);
 	});
 
@@ -763,7 +772,7 @@
 
 		// 转换为 Markdown
 		const markdownContent = turndownService.turndown(htmlContent);
-		console.log("🚀 ~ exportToMarkdown ~ markdownContent:", markdownContent);
+		// console.log("🚀 ~ exportToMarkdown ~ markdownContent:", markdownContent);
 
 		// 创建 Blob
 		const blob = new Blob([markdownContent], { type: "text/markdown" });
@@ -974,7 +983,7 @@
 				.render(markdownText)
 				.replace(/<th>/g, '<td data-header="true">') // 替换 th 为标记的 td
 				.replace(/<\/th>/g, "</td>");
-			console.log("🚀 ~ renderMarkdown ~ html:", html);
+			// console.log("🚀 ~ renderMarkdown ~ html:", html);
 			// 获取当前光标位置
 			const currentSelection = quill.getSelection();
 			let cursorPosition = currentSelection
