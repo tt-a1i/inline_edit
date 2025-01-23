@@ -50,8 +50,9 @@
 		box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 		border-radius: 8px;
 		padding: 10px;
-		width: 300px;
+		/* 移除固定宽度，宽度由JS动态计算 */
 		z-index: 9999;
+		width: auto;
 	}
 
 	.input-container {
@@ -108,6 +109,10 @@
 		display: none;
 		gap: 8px;
 		margin-top: 8px;
+		padding: 8px;
+		background: #fff;
+		border-radius: 4px;
+		box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 	}
 
 	.action-buttons button {
@@ -128,6 +133,7 @@
 		background: white;
 		box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 		border-radius: 8px;
+		/* 移除固定宽度，宽度由JS动态计算 */
 		width: 300px;
 		z-index: 9998;
 	}
@@ -332,13 +338,6 @@
 		<p>Preset build with snow theme, and some common formats.</p>
 		<p>Preset build with snow theme, and some common formats.</p>
 		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
 	</div>
 </div>
 
@@ -430,6 +429,7 @@
 	let currentRange = null;
 
 	const floatingInput = document.getElementById("floatingInput");
+	const verticalMenu = document.getElementById("verticalMenu");
 	const promptInput = document.getElementById("promptInput");
 	const sendBtn = document.getElementById("sendBtn");
 	const aiResponse = document.getElementById("aiResponse");
@@ -477,28 +477,81 @@
 			// 获取编辑器容器的位置信息
 			const editorRect = quill.container.getBoundingClientRect();
 
-			// 计算输入框的位置
-			//顶部位置 = 编辑器容器的顶部距离视口顶部 + 选中文本的底部距离编辑容器顶部 + 10px
-			const topPosition = editorRect.top + bounds.bottom + 10; // 在选中文本下方10px
-			const leftPosition = editorRect.left + bounds.left;
+			// 获取编辑器的实际内容区域宽度
+			const editorContentRect = quill.root.getBoundingClientRect();
+			const editorWidth = editorContentRect.width;
 
+			// 设置元素宽度为实际内容区域宽度
+			[floatingInput, aiResponse].forEach((element) => {
+				element.style.width = `${editorWidth - 20}px`;
+			});
+			// 计算左对齐位置（与编辑器内容左边界对齐）
+			const leftPosition = editorContentRect.left;
+
+			// 定义统一间距
+			const ELEMENT_SPACING = 5;
+
+			// 显示所有元素以获取正确高度
 			floatingInput.style.display = "block";
-			floatingInput.style.top = `${topPosition}px`;
-			floatingInput.style.left = `${leftPosition}px`;
-
-			// 设置垂直菜单的位置，在对话框下方
-			const verticalMenu = document.getElementById("verticalMenu");
 			verticalMenu.style.display = "block";
-			verticalMenu.style.top = `${
-				topPosition + floatingInput.offsetHeight + 10
-			}px`;
-			verticalMenu.style.left = `${leftPosition}px`;
+			// 不显示 aiResponse，它只在需要时显示
+			aiResponse.style.display = "none";
+
+			// 获取所有元素高度
+			const dimensions = {
+				window: window.innerHeight,
+				floatingInput: floatingInput.offsetHeight,
+				verticalMenu: verticalMenu.offsetHeight,
+			};
+
+			// 计算基础位置
+			let topPosition = editorRect.top + bounds.bottom + ELEMENT_SPACING;
+
+			if (
+				topPosition + dimensions.floatingInput + dimensions.verticalMenu >
+				dimensions.window
+			) {
+				// 向上布局模式
+				const totalHeight =
+					dimensions.floatingInput +
+					dimensions.verticalMenu +
+					dimensions.aiResponse +
+					ELEMENT_SPACING * 3;
+				topPosition = Math.max(
+					ELEMENT_SPACING,
+					editorRect.top + bounds.top - totalHeight
+				);
+
+				// 从上到下布局：垂直菜单 -> 输入框
+				verticalMenu.style.top = `${topPosition}px`;
+				floatingInput.style.top = `${
+					topPosition + dimensions.verticalMenu + ELEMENT_SPACING
+				}px`;
+			} else {
+				// 向下布局模式
+				// 从上到下布局：输入框 -> 垂直菜单
+				floatingInput.style.top = `${topPosition}px`;
+				verticalMenu.style.top = `${
+					topPosition + dimensions.floatingInput + ELEMENT_SPACING
+				}px`;
+			}
+
+			// 统一左对齐
+			[floatingInput, verticalMenu, aiResponse].forEach((element) => {
+				element.style.left = `${leftPosition}px`;
+				element.style.position = "fixed";
+			});
+
+			// 设置 AI 响应区域的样式，它会在需要时显示
+			aiResponse.style.position = "fixed";
+			aiResponse.style.left = `${leftPosition}px`;
 		} else if (!range) {
 			console.log("🚀 ~ !range:", !range);
 			// 点击编辑器外部时隐藏输入框，但点击输入框本身时不隐藏
 			if (!floatingInput.contains(document.activeElement)) {
 				clearHighlight();
 				floatingInput.style.display = "none";
+				aiResponse.style.display = "none";
 				const verticalMenu = document.getElementById("verticalMenu");
 				verticalMenu.style.display = "none"; // 隐藏菜单
 			}
@@ -516,13 +569,28 @@
 			: "";
 
 		// 模拟AI响应
+		verticalMenu.style.display = "none"; // 隐藏菜单
 		aiResponse.style.display = "block";
 		aiResponse.textContent = "正在生成回答...";
+
+		// 设置 AI 响应位置在输入框下方
+		const inputRect = floatingInput.getBoundingClientRect();
+		aiResponse.style.top = `${inputRect.bottom + 5}px`; // 5px 间距
 
 		// 模拟API调用延迟
 		setTimeout(() => {
 			aiResponse.textContent = `选中的文本是：${selectedText}  AI的回答：${prompt}`;
+			
+			// 获取更新后的 AI 响应区域位置
+			const aiResponseRect = aiResponse.getBoundingClientRect();
+			
+			// 显示操作按钮并设置位置
 			actionButtons.style.display = "flex";
+			actionButtons.style.position = "fixed";
+			actionButtons.style.top = `${aiResponseRect.bottom + 5}px`;
+			actionButtons.style.left = `${aiResponseRect.left}px`;
+			actionButtons.style.width = `${aiResponse.offsetWidth}px`;
+
 		}, 1000);
 	});
 
@@ -548,6 +616,7 @@
 
 	// 插入内容的按钮点击事件
 	document.getElementById("insertAfter").addEventListener("click", () => {
+		clearHighlight();
 		if (currentRange && aiResponse.textContent) {
 			const insertIndex = currentRange.index + currentRange.length;
 			progressiveInsert(" " + aiResponse.textContent, insertIndex).then(() => {
@@ -558,6 +627,7 @@
 
 	// 替换内容的按钮点击事件
 	document.getElementById("replace").addEventListener("click", () => {
+		clearHighlight();
 		if (currentRange && aiResponse.textContent) {
 			progressiveInsert(aiResponse.textContent, currentRange.index, true).then(
 				() => {
