@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        /* 对比容器样式 */
+        #diffContainer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            display: none;
+        }
+
+        /* 编辑器容器 */
+        #editorContainer {
+            width: 90%;
+            height: 80%;
+            margin: 5% auto;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        /* 关闭按钮 */
+        .close-btn {
+            position: absolute;
+            right: 6%;
+            top: 7%;
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <button onclick="showDiff('旧文本内容', '新文本内容')">显示对比</button>
+
+    <!-- 对比容器 -->
+    <div id="diffContainer">
+        <div id="editorContainer"></div>
+        <button class="close-btn" onclick="closeDiff()">关闭</button>
+    </div>
+
+    <!-- 加载 Monaco Editor -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/loader.min.js"></script>
+    <script>
+        // 初始化 Monaco
+        let diffEditor = null;
+
+        require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs' }});
+        require(['vs/editor/editor.main'], function() {
+            // 初始化完成
+        });
+
+        // 显示对比功能
+        function showDiff(original, modified) {
+            const container = document.getElementById('diffContainer');
+            container.style.display = 'block';
+
+            if (!diffEditor) {
+                diffEditor = monaco.editor.createDiffEditor(
+                    document.getElementById('editorContainer'),
+                    {
+                        readOnly: true,
+                        theme: 'vs-dark',
+                        automaticLayout: true
+                    }
+                );
+            }
+
+            // 设置对比内容
+            const originalModel = monaco.editor.createModel(original);
+            const modifiedModel = monaco.editor.createModel(modified);
+            
+            diffEditor.setModel({
+                original: originalModel,
+                modified: modifiedModel
+            });
+        }
+
+        // 关闭对比
+        function closeDiff() {
+            document.getElementById('diffContainer').style.display = 'none';
+            if (diffEditor) {
+                diffEditor.getOriginalEditor().dispose();
+                diffEditor.getModifiedEditor().dispose();
+                diffEditor.dispose();
+                diffEditor = null;
+            }
+        }
+    </script>
+</body>
+</html>
