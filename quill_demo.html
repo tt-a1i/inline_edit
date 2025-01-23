@@ -454,6 +454,8 @@
 	const quill = new Quill("#editor", options);
 	const table = quill.getModule("table");
 
+	// 用于判断菜单是否靠近底部,底部时向上显示
+	let posCloseToBottom = false;
 	let currentRange = null;
 
 	const floatingInput = document.getElementById("floatingInput");
@@ -490,7 +492,7 @@
 	 * 通过发布订阅模式，在选中文本时quill内部emit对应的时间名的回调
 	 */
 	quill.on("selection-change", function (range, oldRange, source) {
-		// console.log("🚀 ~ range:", range);
+		console.log("🚀 ~ range:", range);
 		if (range && range.length > 0) {
 			//选中内容后，继续选中新的内容时，清除之前选中内容的高亮
 			if (currentRange) clearHighlight();
@@ -538,25 +540,17 @@
 				topPosition + dimensions.floatingInput + dimensions.verticalMenu >
 				dimensions.window
 			) {
+				console.log("选中内容的高度:", bounds.height);
+				console.log("选中内容的顶部位置:", bounds.top);
+				console.log("选中内容的底部位置:", bounds.top + bounds.height);
 				console.log(1)
 				// 向上布局模式
-				const totalHeight =
-					dimensions.floatingInput +
-					dimensions.verticalMenu +
-					dimensions.aiResponse +
-					ELEMENT_SPACING * 3;
-				topPosition = Math.max(
-					ELEMENT_SPACING,
-					editorRect.top + bounds.top - totalHeight
-				);
-
-				// 从上到下布局：垂直菜单 -> 输入框
-				verticalMenu.style.top = `${topPosition}px`;
-				floatingInput.style.top = `${
-					topPosition + dimensions.verticalMenu + ELEMENT_SPACING
+				floatingInput.style.top = `${topPosition - dimensions.floatingInput - bounds.height - 10}px`;
+				verticalMenu.style.top = `${
+					topPosition - dimensions.floatingInput - bounds.height - dimensions.verticalMenu - 13
 				}px`;
 			} else {
-				console.log(2)
+				posCloseToBottom = false;
 				// 向下布局模式
 				// 从上到下布局：输入框 -> 垂直菜单
 				floatingInput.style.top = `${topPosition}px`;
@@ -683,6 +677,7 @@
 				verticalMenu.style.display = "none"; // 隐藏菜单
 				promptInput.value = "";
 				clearHighlight(); // 清除高亮
+				posCloseToBottom = false;
 			}
 		}, 0);
 	});
@@ -772,7 +767,7 @@
 
 		// 转换为 Markdown
 		const markdownContent = turndownService.turndown(htmlContent);
-		// console.log("🚀 ~ exportToMarkdown ~ markdownContent:", markdownContent);
+		console.log("🚀 ~ exportToMarkdown ~ markdownContent:", markdownContent);
 
 		// 创建 Blob
 		const blob = new Blob([markdownContent], { type: "text/markdown" });
@@ -983,7 +978,7 @@
 				.render(markdownText)
 				.replace(/<th>/g, '<td data-header="true">') // 替换 th 为标记的 td
 				.replace(/<\/th>/g, "</td>");
-			// console.log("🚀 ~ renderMarkdown ~ html:", html);
+			console.log("🚀 ~ renderMarkdown ~ html:", html);
 			// 获取当前光标位置
 			const currentSelection = quill.getSelection();
 			let cursorPosition = currentSelection
