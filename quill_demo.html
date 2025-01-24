@@ -543,11 +543,17 @@
 				console.log("选中内容的高度:", bounds.height);
 				console.log("选中内容的顶部位置:", bounds.top);
 				console.log("选中内容的底部位置:", bounds.top + bounds.height);
-				console.log(1)
+				console.log(1);
 				// 向上布局模式
-				floatingInput.style.top = `${topPosition - dimensions.floatingInput - bounds.height - 10}px`;
+				floatingInput.style.top = `${
+					topPosition - dimensions.floatingInput - bounds.height - 10
+				}px`;
 				verticalMenu.style.top = `${
-					topPosition - dimensions.floatingInput - bounds.height - dimensions.verticalMenu - 13
+					topPosition -
+					dimensions.floatingInput -
+					bounds.height -
+					dimensions.verticalMenu -
+					13
 				}px`;
 			} else {
 				posCloseToBottom = false;
@@ -594,7 +600,7 @@
 		// 显示AI响应区域
 		verticalMenu.style.display = "none";
 		aiResponse.style.display = "block";
-		const responseContent = aiResponse.querySelector('.response-content');
+		const responseContent = aiResponse.querySelector(".response-content");
 		responseContent.textContent = "正在生成回答...";
 
 		// 设置 AI 响应位置在输入框下方
@@ -658,6 +664,7 @@
 			const target = event.target;
 			const verticalMenu = document.getElementById("verticalMenu");
 			const isInVerticalMenu = verticalMenu.contains(target);
+			if (verticalMenu.contains(target)) return;
 			// 检查点击目标是否在允许的区域内
 			const isInFloatingInput = floatingInput.contains(target);
 			const isInEditor = quill.container.contains(target);
@@ -684,9 +691,13 @@
 
 	// 选中后的ai菜单项点击事件
 	document.querySelectorAll(".menu-item").forEach((item) => {
-		item.addEventListener("click", function () {
+		item.addEventListener("click", function (event) {
+			event.stopPropagation(); // 阻止事件冒泡
 			const actionText = this.textContent.trim();
 			promptInput.value = actionText;
+			if (currentRange) {
+				quill.setSelection(currentRange.index, currentRange.length);
+			}
 			sendBtn.click();
 			verticalMenu.style.display = "none"; // 隐藏菜单
 		});
