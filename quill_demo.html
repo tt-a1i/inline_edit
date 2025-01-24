@@ -22,6 +22,8 @@
 />
 <!-- 在其他 script 标签后添加 markdown-it -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/13.0.1/markdown-it.min.js"></script>
+<!-- 替换原有的 Monaco Editor 资源引入 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/loader.min.js"></script>
 <style>
 	/* flex 布局，新按钮会被放置在末尾 */
 	.ql-toolbar {
@@ -304,20 +306,74 @@
 		font-weight: bold;
 		background: #f3f4f6;
 	}
+
+	/* 添加对比编辑器样式 */
+	#diffContainer {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background: rgba(0, 0, 0, 0.5);
+		z-index: 9999;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	#diffWrapper {
+		width: 90%;
+		height: 80%;
+		background: #1e1e1e;
+		border-radius: 8px;
+		overflow: hidden;
+		display: flex;
+		flex-direction: column;
+	}
+
+	#diffEditor {
+		flex: 1;
+	}
+
+	.diff-actions {
+		padding: 16px;
+		display: flex;
+		justify-content: flex-end;
+		gap: 12px;
+		background: #252526;
+	}
+
+	.diff-btn {
+		padding: 8px 16px;
+		border: none;
+		border-radius: 4px;
+		cursor: pointer;
+		font-size: 14px;
+		transition: all 0.2s;
+	}
+
+	.diff-btn.confirm {
+		background: #0078d4;
+		color: white;
+	}
+
+	.diff-btn.confirm:hover {
+		background: #106ebe;
+	}
+
+	.diff-btn.cancel {
+		background: #4c4c4c;
+		color: white;
+	}
+
+	.diff-btn.cancel:hover {
+		background: #3c3c3c;
+	}
 </style>
 
 <div class="editor-container">
 	<div id="editor">
 		<h2>Demo Content</h2>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
 		<p>Preset build with snow theme, and some common formats.</p>
 		<p>Preset build with snow theme, and some common formats.</p>
 		<p>Preset build with snow theme, and some common formats.</p>
@@ -404,10 +460,20 @@
 	测试 Markdown 渲染
 </button>
 
+<!-- 在 body 末尾添加对比编辑器容器 -->
+<div id="diffContainer" style="display: none">
+	<div id="diffWrapper">
+		<div id="diffEditor"></div>
+		<div class="diff-actions">
+			<button id="confirmReplace" class="diff-btn confirm">确认替换</button>
+			<button id="cancelReplace" class="diff-btn cancel">取消</button>
+		</div>
+	</div>
+</div>
+
 <script>
 	//TODO diff
 	//TODO 问答对话框的逻辑完善
-	//TODO 在底部进行选中内容时的菜单栏在不可见范围内的处理
 	Quill.register("modules/tableUI", quillTableUI.default);
 
 	const options = {
@@ -614,48 +680,130 @@
 		}, 1000);
 	});
 
-	// 添加渐进式插入文本的函数
-	async function progressiveInsert(text, startIndex, isReplace = false) {
-		const delay = 50; // 每个字符插入的延迟时间（毫秒）
-
-		if (isReplace) {
+	// 修改内容插入函数为同步操作
+	function insertContent(text, startIndex, isReplace = false) {
+		if (isReplace && currentRange) {
 			clearHighlight();
 			quill.deleteText(currentRange.index, currentRange.length);
 		}
 
 		const insertPosition = isReplace ? currentRange.index : startIndex;
-		let currentPosition = insertPosition;
-
-		for (let i = 0; i < text.length; i++) {
-			await new Promise((resolve) => setTimeout(resolve, delay));
-			quill.insertText(currentPosition, text[i]);
-			currentPosition++;
-		}
-		return Promise.resolve();
+		quill.insertText(insertPosition, text);
 	}
 
-	// 插入内容的按钮点击事件
+	// 修改插入内容的按钮点击事件
 	document.getElementById("insertAfter").addEventListener("click", () => {
 		clearHighlight();
 		if (currentRange && aiResponse.textContent) {
 			const insertIndex = currentRange.index + currentRange.length;
-			progressiveInsert(" " + aiResponse.textContent, insertIndex).then(() => {
-				clearHighlight();
-			});
+			insertContent(" " + aiResponse.textContent, insertIndex);
+			clearHighlight();
 		}
 	});
 
-	// 替换内容的按钮点击事件
-	document.getElementById("replace").addEventListener("click", () => {
+	// 修改确认替换按钮事件
+	document.getElementById("confirmReplace").addEventListener("click", () => {
+		if (!diffEditor) return;
+
+		const modifiedText = diffEditor.getModifiedEditor().getValue();
+		insertContent(modifiedText, currentRange.index, true);
 		clearHighlight();
-		if (currentRange && aiResponse.textContent) {
-			progressiveInsert(aiResponse.textContent, currentRange.index, true).then(
-				() => {
-					clearHighlight();
-				}
-			);
-		}
+		closeDiffEditor();
 	});
+
+	// 修改 showDiffEditor 函数
+	function showDiffEditor(originalText, modifiedText) {
+		const container = document.getElementById("diffContainer");
+		const editorElement = document.getElementById("diffEditor");
+		container.style.display = "flex";
+
+		// 如果编辑器已存在，先销毁它
+		if (diffEditor) {
+			diffEditor.dispose();
+			diffEditor = null;
+		}
+
+		// 创建新的对比编辑器实例，设置右侧可编辑
+		diffEditor = monaco.editor.createDiffEditor(editorElement, {
+			automaticLayout: true,
+			readOnly: false, // 允许编辑
+			theme: "vs-dark",
+			renderSideBySide: true,
+			scrollBeyondLastLine: false,
+			minimap: {
+				enabled: false,
+			},
+			originalEditable: false, // 左侧原文不可编辑
+			modifiedEditable: true, // 右侧新内容可编辑
+		});
+
+		// 创建原始文本和修改后文本的模型
+		const originalModel = monaco.editor.createModel(originalText, "text/plain");
+		const modifiedModel = monaco.editor.createModel(
+			modifiedText,
+			"text/plain",
+			monaco.Uri.parse("modified.txt")
+		); // 给修改后的文本一个唯一的 URI
+
+		// 设置模型
+		diffEditor.setModel({
+			original: originalModel,
+			modified: modifiedModel,
+		});
+
+		// 设置修改后内容的编辑器的一些特定配置
+		const modifiedEditor = diffEditor.getModifiedEditor();
+		modifiedEditor.updateOptions({
+			readOnly: false,
+			// 添加一些编辑友好的配置
+			lineNumbers: "on",
+			wordWrap: "on",
+			scrollBeyondLastLine: false,
+			minimap: { enabled: false },
+			folding: true,
+			fontSize: 14,
+			lineHeight: 20,
+			suggestOnTriggerCharacters: false, // 禁用自动补全
+		});
+
+		// 聚焦到可编辑区域
+		setTimeout(() => {
+			modifiedEditor.focus();
+		}, 100);
+	}
+
+	// 确认替换按钮事件
+	document.getElementById("confirmReplace").addEventListener("click", () => {
+		if (!diffEditor) return;
+
+		// 获取修改后的内容
+		const modifiedText = diffEditor.getModifiedEditor().getValue();
+
+		// 执行替换
+		insertContent(modifiedText, currentRange.index, true);
+		clearHighlight();
+		closeDiffEditor();
+	});
+
+	// 修改关闭对比编辑器函数
+	function closeDiffEditor() {
+		const container = document.getElementById("diffContainer");
+		container.style.display = "none";
+
+		if (diffEditor) {
+			try {
+				const models = diffEditor.getModel();
+				if (models) {
+					if (models.original) models.original.dispose();
+					if (models.modified) models.modified.dispose();
+				}
+				diffEditor.dispose();
+			} catch (error) {
+				console.error("Error disposing editor:", error);
+			}
+			diffEditor = null;
+		}
+	}
 
 	// 移除原有的点击事件监听器，改用新的逻辑
 	document.addEventListener("mouseup", (event) => {
@@ -1041,5 +1189,103 @@ function hello() {
 	// 测试渲染函数
 	function testMarkdownRender() {
 		renderMarkdown(testMarkdown);
+	}
+
+	// 修改 Monaco Editor 的初始化配置
+	require.config({
+		paths: {
+			vs: "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs",
+		},
+	});
+
+	// 初始化时预加载 Monaco Editor
+	require(["vs/editor/editor.main"], function () {
+		monacoLoaded = true;
+		console.log("Monaco Editor loaded successfully");
+	});
+
+	// 添加全局变量
+	let diffEditor = null;
+	let monacoLoaded = false;
+
+	// 修复替换按钮的点击事件处理
+	document.getElementById("replace").addEventListener("click", () => {
+		if (!monacoLoaded) {
+			console.log("Monaco Editor is still loading...");
+			return;
+		}
+
+		const selectedText = currentRange
+			? quill.getText(currentRange.index, currentRange.length)
+			: "";
+			
+		// 从 AI 响应内容中提取实际的回答部分
+		const aiResponseText = aiResponse.querySelector(".response-content").textContent;
+		const actualResponse = aiResponseText.split('AI的回答：')[1]; // 获取 AI 回答部分
+
+		// 确保有选中的文本和 AI 的回答
+		if (!selectedText || !actualResponse) {
+			console.log("No selected text or AI response");
+			return;
+		}
+
+		showDiffEditor(selectedText, actualResponse);
+	});
+
+	// 修复 showDiffEditor 函数
+	function showDiffEditor(originalText, modifiedText) {
+		console.log("Opening diff editor with:", { originalText, modifiedText });
+		const container = document.getElementById("diffContainer");
+		const editorElement = document.getElementById("diffEditor");
+		container.style.display = "flex";
+
+		// 如果编辑器已存在，先销毁它
+		if (diffEditor) {
+			try {
+				diffEditor.dispose();
+				diffEditor = null;
+			} catch (error) {
+				console.error("Error disposing editor:", error);
+			}
+		}
+
+		// 等待一个短暂的延迟，确保 DOM 已更新
+		setTimeout(() => {
+			try {
+				// 创建新的对比编辑器实例
+				diffEditor = monaco.editor.createDiffEditor(editorElement, {
+					automaticLayout: true,
+					readOnly: false,
+					theme: "vs-dark",
+					renderSideBySide: true,
+					scrollBeyondLastLine: false,
+					minimap: { enabled: false },
+					originalEditable: false,
+					modifiedEditable: true,
+				});
+
+				// 创建模型
+				const originalModel = monaco.editor.createModel(
+					originalText,
+					"plaintext"
+				);
+				const modifiedModel = monaco.editor.createModel(
+					modifiedText,
+					"plaintext"
+				);
+
+				// 设置模型
+				diffEditor.setModel({
+					original: originalModel,
+					modified: modifiedModel,
+				});
+
+				// 聚焦到编辑器
+				const modifiedEditor = diffEditor.getModifiedEditor();
+				modifiedEditor.focus();
+			} catch (error) {
+				console.error("Error creating diff editor:", error);
+			}
+		}, 100);
 	}
 </script>
