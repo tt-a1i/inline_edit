@@ -1288,4 +1288,25 @@ function hello() {
 			}
 		}, 100);
 	}
+
+	// 取消按钮点击事件
+	document.getElementById("cancelReplace").addEventListener("click", () => {
+		// 1. 关闭对比编辑器浮层
+		closeDiffEditor();
+		
+		// 2. 清除文本高亮
+		clearHighlight();
+		
+		// 3. 隐藏浮动输入框和AI响应
+		floatingInput.style.display = "none";
+		aiResponse.style.display = "none";
+		actionButtons.style.display = "none";
+		
+		// 4. 重置输入框内容
+		promptInput.value = "";
+		
+		// 5. 重置其他状态
+		currentRange = null;
+		posCloseToBottom = false;
+	});
 </script>
