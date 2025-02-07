@@ -33,7 +33,7 @@
 	}
 
 	.editor-container {
-		max-width: 800px;
+		max-width: 900px;
 		margin: 0 auto;
 		padding: 20px;
 		background-color: #f9fafd;
@@ -377,6 +377,35 @@
 	.diff-btn.cancel:hover {
 		background: #3c3c3c;
 	}
+	/* 添加复制按钮样式 */
+	.ql-copy-content {
+		position: relative;
+		width: 28px;
+		height: 24px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.ql-copy-content::before {
+		font-family: "Font Awesome 5 Free";
+		content: "\f0c5"; /* Copy icon from Font Awesome */
+		font-weight: 900;
+		font-size: 14px;
+	}
+
+	.ql-copy-content:hover {
+		color: #06c;
+	}
+	/* 添加创建时间和字数统计样式 */
+	.ql-creation-time,
+	.ql-word-count {
+		display: inline-block; /* 使其在工具栏中水平排列 */
+		margin-right: 15px; /*  设置与后面工具栏按钮的间距 */
+		font-size: 14px; /* 调整字体大小 */
+		color: #777; /*  设置颜色，可以根据你的主题调整 */
+		line-height: 24px; /*  与工具栏按钮垂直对齐 */
+	}
 </style>
 
 <div class="editor-container">
@@ -498,6 +527,7 @@
 						[{ list: "ordered" }, { list: "bullet" }],
 						["table"], // 添加表格按钮
 						["export"], // 统一的导出按钮
+						["copy-content"], // 添加复制按钮
 					],
 					handlers: {
 						undo: function () {
@@ -511,6 +541,10 @@
 						},
 						table: function (value) {
 							table.insertTable(3, 3);
+						},
+						"copy-content": function () {
+							// 添加复制按钮的 handler
+							copyContentToClipboardAsText();
 						},
 					},
 				},
@@ -555,6 +589,75 @@
 					false
 				);
 			}
+		}
+		// 获取工具栏容器
+		const toolbar = quill.getModule("toolbar").container;
+
+		// 创建显示创建时间的 span 元素
+		const creationTimeDisplay = document.createElement("span");
+		creationTimeDisplay.id = "creationTimeDisplay";
+		creationTimeDisplay.classList.add("ql-creation-time"); // 添加 CSS 类，方便样式控制
+		toolbar.prepend(creationTimeDisplay); // 将创建时间显示元素添加到工具栏的 *最前面*
+
+		// 创建显示字数统计的 span 元素
+		const wordCountDisplay = document.createElement("span");
+		wordCountDisplay.id = "wordCountDisplay";
+		wordCountDisplay.classList.add("ql-word-count"); // 添加 CSS 类，方便样式控制
+		toolbar.prepend(wordCountDisplay); //  将字数统计显示元素添加到工具栏的 *最前面* (它会在创建时间元素的右边，因为是 prepend)
+
+		// 获取并格式化当前时间
+		function getCurrentTime() {
+			const now = new Date();
+			const hours = String(now.getHours()).padStart(2, "0");
+			const minutes = String(now.getMinutes()).padStart(2, "0");
+			const seconds = String(now.getSeconds()).padStart(2, "0");
+			const day = String(now.getDate()).padStart(2, "0");
+			const month = String(now.getMonth() + 1).padStart(2, "0"); // 月份从 0 开始
+			const year = now.getFullYear();
+			return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+		}
+
+		// 更新创建时间显示
+		function updateCreationTimeDisplay() {
+			const currentTime = getCurrentTime();
+			creationTimeDisplay.textContent = `创建时间: ${currentTime}`;
+		}
+
+		// 计算字数并更新显示
+		function updateWordCountDisplay() {
+			const text = quill.getText(); // 获取编辑器纯文本内容
+			const wordCount = text
+				.replace(
+					/[\u3002\uff01\uff0c\uff1a\uff1b\uff1f\u0021-\u002f\u003a-\u0040\u005b-\u0060\u007b-\u007e]/g,
+					""
+				) // 移除标点符号
+				.replace(/\s+/g, "") // 移除所有空格
+				.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, "").length; // 移除特殊符号 // 直接计算字符数，即字数
+			wordCountDisplay.textContent = `字数: ${wordCount}`;
+		}
+
+		// 初始化创建时间显示
+		updateCreationTimeDisplay();
+		// 初始化字数统计显示
+		updateWordCountDisplay();
+
+		// 监听编辑器内容变化事件，实时更新字数统计
+		quill.on("text-change", function () {
+			console.log("Text change!");
+			updateWordCountDisplay();
+		});
+
+		function copyContentToClipboardAsText() {
+			const content = quill.getText(); // 使用 getText() 获取纯文本内容
+			navigator.clipboard
+				.writeText(content)
+				.then(() => {
+					// alert("复制成功!"); // 提示信息也相应修改
+				})
+				.catch((err) => {
+					console.error("复制内容失败: ", err);
+					// alert("复制内容失败，请重试。");
+				});
 		}
 
 		/**
@@ -1172,27 +1275,27 @@
 		// 测试用的 Markdown 文本
 		const testMarkdown = `# 这是一个标题
 
-这是一段普通文本，包含**粗体**和*斜体*。
+			这是一段普通文本，包含**粗体**和*斜体*。
 
-## 列表示例
-- 项目 1
-- 项目 2
-  - 子项目 A
-  - 子项目 B
+			## 列表示例
+			- 项目 1
+			- 项目 2
+			- 子项目 A
+			- 子项目 B
 
-## 代码示例
-\`\`\`javascript
-function hello() {
-    console.log("Hello, World!");
-}
-\`\`\`
+			## 代码示例
+			\`\`\`javascript
+			function hello() {
+				console.log("Hello, World!");
+			}
+			\`\`\`
 
-## 表格示例
-| 列1 | 列2 | 列3 |
-|-----|-----|-----|
-| A1  | B1  | C1  |
-| A2  | B2  | C2  |
-`;
+			## 表格示例
+			| 列1 | 列2 | 列3 |
+			|-----|-----|-----|
+			| A1  | B1  | C1  |
+			| A2  | B2  | C2  |
+			`;
 
 		// 测试渲染函数
 		function testMarkdownRender() {
