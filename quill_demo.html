@@ -472,8 +472,6 @@
 </div>
 
 <script>
-	//TODO diff
-	//TODO 问答对话框的逻辑完善
 	Quill.register("modules/tableUI", quillTableUI.default);
 
 	const options = {
@@ -486,6 +484,7 @@
 					["undo", "redo"], // 添加撤销重做按钮
 					[{ header: [1, 2, 3, false] }],
 					["bold", "italic", "underline"],
+					[{ align: [] }],
 					// ["code-block"],
 					[{ list: "ordered" }, { list: "bullet" }],
 					["table"], // 添加表格按钮
@@ -671,7 +670,7 @@
 
 		// 设置 AI 响应位置在输入框下方
 		const inputRect = floatingInput.getBoundingClientRect();
-		aiResponse.style.top = `${inputRect.bottom + 5}px`; // 5px 间距
+		aiResponse.style.top = `${inputRect.bottom - 5}px`; // 5px 间距
 
 		// 模拟API调用延迟
 		setTimeout(() => {
@@ -818,11 +817,6 @@
 			const isInEditor = quill.container.contains(target);
 			const hasSelection =
 				quill.getSelection() && quill.getSelection().length > 0;
-
-			/* 			console.log(
-				"toolbarContainers > target",
-				toolbarContainer.contains(target)
-			); */
 
 			// 如果点击在允许区域外，且不是在选择文本
 			if (!isInFloatingInput && !hasSelection && !isInVerticalMenu) {
@@ -1231,63 +1225,6 @@ function hello() {
 
 		showDiffEditor(selectedText, actualResponse);
 	});
-
-	// 修复 showDiffEditor 函数
-	function showDiffEditor(originalText, modifiedText) {
-		console.log("Opening diff editor with:", { originalText, modifiedText });
-		const container = document.getElementById("diffContainer");
-		const editorElement = document.getElementById("diffEditor");
-		container.style.display = "flex";
-
-		// 如果编辑器已存在，先销毁它
-		if (diffEditor) {
-			try {
-				diffEditor.dispose();
-				diffEditor = null;
-			} catch (error) {
-				console.error("Error disposing editor:", error);
-			}
-		}
-
-		// 等待一个短暂的延迟，确保 DOM 已更新
-		setTimeout(() => {
-			try {
-				// 创建新的对比编辑器实例
-				diffEditor = monaco.editor.createDiffEditor(editorElement, {
-					automaticLayout: true,
-					readOnly: false,
-					theme: "vs-dark",
-					renderSideBySide: true,
-					scrollBeyondLastLine: false,
-					minimap: { enabled: false },
-					originalEditable: false,
-					modifiedEditable: true,
-				});
-
-				// 创建模型
-				const originalModel = monaco.editor.createModel(
-					originalText,
-					"plaintext"
-				);
-				const modifiedModel = monaco.editor.createModel(
-					modifiedText,
-					"plaintext"
-				);
-
-				// 设置模型
-				diffEditor.setModel({
-					original: originalModel,
-					modified: modifiedModel,
-				});
-
-				// 聚焦到编辑器
-				const modifiedEditor = diffEditor.getModifiedEditor();
-				modifiedEditor.focus();
-			} catch (error) {
-				console.error("Error creating diff editor:", error);
-			}
-		}, 100);
-	}
 
 	// 取消按钮点击事件
 	document.getElementById("cancelReplace").addEventListener("click", () => {
