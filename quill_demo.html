@@ -419,7 +419,7 @@
 		border-radius: 4px;
 		cursor: pointer;
 		color: #666;
-		display: flex;
+		display: none; /* 默认隐藏 */
 		align-items: center;
 		gap: 4px;
 		font-size: 12px;
@@ -431,6 +431,40 @@
 		background: #f5f5f5;
 		color: #409eff;
 		border-color: #409eff;
+	}
+
+	.ai-response-header {
+		display: flex;
+		justify-content: flex-end;
+		gap: 8px;
+		margin-bottom: 10px;
+	}
+
+	.ai-response-regenerate-btn {
+		position: absolute;
+		top: 10px;
+		right: 80px; /* 为复制按钮留出空间 */
+		padding: 4px 8px;
+		background: transparent;
+		border: 1px solid #ddd;
+		border-radius: 4px;
+		cursor: pointer;
+		color: #666;
+		display: none; /* 默认隐藏 */
+		align-items: center;
+		gap: 4px;
+		font-size: 12px;
+		transition: all 0.2s;
+	}
+
+	.ai-response-regenerate-btn:hover {
+		background: #f5f5f5;
+		color: #409eff;
+		border-color: #409eff;
+	}
+
+	.ai-response-regenerate-btn i {
+		font-size: 12px;
 	}
 </style>
 
@@ -489,10 +523,16 @@
 		</button>
 	</div>
 	<div class="ai-response" id="aiResponse">
-		<button class="ai-response-copy-btn" id="aiResponseCopyBtn">
-			<i class="fas fa-copy"></i>
-			复制
-		</button>
+		<div class="ai-response-header">
+			<button class="ai-response-copy-btn" id="aiResponseCopyBtn">
+				<i class="fas fa-copy"></i>
+				复制
+			</button>
+			<button class="ai-response-regenerate-btn" id="aiResponseRegenerateBtn">
+				<i class="fas fa-sync-alt"></i>
+				重新生成
+			</button>
+		</div>
 		<div class="response-content"></div>
 		<div class="action-buttons" id="actionButtons">
 			<button id="insertAfter">
@@ -507,12 +547,15 @@
 	</div>
 </div>
 
-<!-- 垂直菜单HTML结构 -->
+<!-- 修改垂直菜单HTML结构 -->
 <div class="vertical-menu" id="verticalMenu">
-	<div class="menu-item">✍️ 改写这段内容</div>
-	<div class="menu-item">🔄 生成相似内容</div>
-	<div class="menu-item">📝 总结这段内容</div>
-	<div class="menu-item">🎯 优化这段内容</div>
+	<div class="menu-item">📝 单词语法纠错</div>
+	<div class="menu-item">✨ AI润色</div>
+	<div class="menu-item">📊 AI缩写</div>
+	<div class="menu-item">📈 AI扩写</div>
+	<div class="menu-item">📋 AI总结</div>
+	<div class="menu-item">🇨🇳 翻译成中文</div>
+	<div class="menu-item">🇬🇧 翻译成英文</div>
 </div>
 
 <!-- 在 editor-container div 后添加导出菜单 -->
@@ -836,9 +879,11 @@
 			aiResponse.style.display = "block";
 			const responseContent = aiResponse.querySelector(".response-content");
 			const copyBtn = document.getElementById("aiResponseCopyBtn");
+			const regenerateBtn = document.getElementById("aiResponseRegenerateBtn");
 
-			// 在生成回答时隐藏复制按钮
+			// 在生成回答时隐藏按钮
 			copyBtn.style.display = "none";
+			regenerateBtn.style.display = "none";
 			responseContent.textContent = "正在生成回答...";
 
 			// 设置 AI 响应位置在输入框下方
@@ -849,8 +894,9 @@
 			setTimeout(() => {
 				responseContent.textContent = `选中的文本是：${selectedText}\nAI的回答：${prompt}`;
 				actionButtons.style.display = "flex";
-				// 内容生成完成后显示复制按钮
+				// 内容生成完成后显示按钮
 				copyBtn.style.display = "flex";
+				regenerateBtn.style.display = "flex";
 			}, 1000);
 		});
 
@@ -1454,6 +1500,33 @@
 			.getElementById("aiResponseCopyBtn")
 			.addEventListener("click", copyAiResponse);
 
+		// 添加重新生成按钮点击事件
+		document
+			.getElementById("aiResponseRegenerateBtn")
+			.addEventListener("click", function () {
+				// 获取当前的 prompt
+				const prompt = promptInput.value;
+				if (!prompt) return;
+
+				// 显示生成中状态
+				const responseContent = aiResponse.querySelector(".response-content");
+				const copyBtn = document.getElementById("aiResponseCopyBtn");
+				const regenerateBtn = document.getElementById(
+					"aiResponseRegenerateBtn"
+				);
+
+				copyBtn.style.display = "none";
+				regenerateBtn.style.display = "none";
+				responseContent.textContent = "正在重新生成...";
+
+				// 模拟API调用
+				setTimeout(() => {
+					responseContent.textContent = `重新生成的内容：${prompt} (${new Date().toLocaleTimeString()})`;
+					copyBtn.style.display = "flex";
+					regenerateBtn.style.display = "flex";
+				}, 1000);
+			});
+
 		// 添加到重置状态的函数中
 		function resetEditorState() {
 			clearHighlight();
@@ -1462,6 +1535,7 @@
 			aiResponse.style.display = "none";
 			actionButtons.style.display = "none";
 			document.getElementById("aiResponseCopyBtn").style.display = "none"; // 隐藏复制按钮
+			document.getElementById("aiResponseRegenerateBtn").style.display = "none"; // 隐藏重新生成按钮
 			promptInput.value = "";
 			posCloseToBottom = false;
 		}
