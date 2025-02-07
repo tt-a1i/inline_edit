@@ -580,16 +580,25 @@
 			}
 		}
 
+		// 修改 clearHighlight 函数
 		function clearHighlight() {
 			if (currentRange) {
-				quill.formatText(
-					currentRange.index,
-					currentRange.length,
-					"background",
-					false
-				);
+				const tempRange = currentRange;
+				currentRange = null; // 先重置 currentRange
+
+				// 使用 setTimeout 确保在下一个事件循环中执行格式清除
+				setTimeout(() => {
+					quill.formatText(
+						tempRange.index,
+						tempRange.length,
+						"background",
+						false,
+						"api" // 指定源为 api 避免触发 text-change 事件处理
+					);
+				}, 0);
 			}
 		}
+
 		// 获取工具栏容器
 		const toolbar = quill.getModule("toolbar").container;
 
@@ -641,9 +650,27 @@
 		// 初始化字数统计显示
 		updateWordCountDisplay();
 
-		// 监听编辑器内容变化事件，实时更新字数统计
-		quill.on("text-change", function () {
-			console.log("Text change!");
+		// 修改 text-change 事件监听
+		quill.on("text-change", function (delta, oldDelta, source) {
+			if (source === "user") {
+				// 使用 setTimeout 确保在渲染完成后再清除高亮
+				setTimeout(() => {
+					// 清除所有背景色样式
+					const length = quill.getLength();
+					quill.formatText(0, length, "background", false, "api");
+
+					// 重置状态和隐藏界面元素
+					currentRange = null;
+					floatingInput.style.display = "none";
+					aiResponse.style.display = "none";
+					verticalMenu.style.display = "none";
+					actionButtons.style.display = "none";
+					promptInput.value = "";
+					posCloseToBottom = false;
+				}, 0);
+			}
+
+			// 保留原有的字数统计更新
 			updateWordCountDisplay();
 		});
 
