@@ -513,9 +513,9 @@
 	</div>
 </div>
 
-<div class="floating-input" id="floatingInput">
+<div class="floating-input" id="floatingInput" tabindex="0">
 	<div class="input-container">
-		<input type="text" id="promptInput" placeholder="输入提示..." />
+		<input type="text" id="promptInput" placeholder="输入提示..."/>
 		<button class="send-btn" id="sendBtn">
 			<i class="fas fa-paper-plane"></i>
 			<span>发送</span>
@@ -547,7 +547,7 @@
 </div>
 
 <!-- 修改垂直菜单HTML结构 -->
-<div class="vertical-menu" id="verticalMenu">
+<div class="vertical-menu" id="verticalMenu" tabindex="0">
 	<div class="menu-item">📝 单词语法纠错</div>
 	<div class="menu-item">✨ AI润色</div>
 	<div class="menu-item">📊 AI缩写</div>
@@ -727,6 +727,7 @@
 			if (source === "user") {
 				// 使用 setTimeout 确保在渲染完成后再清除高亮
 				setTimeout(() => {
+					console.log("text-change的样式重置执行了");
 					// 清除所有背景色样式
 					const length = quill.getLength();
 					quill.formatText(0, length, "background", false, "api");
@@ -849,7 +850,13 @@
 			} else if (!range) {
 				// console.log("🚀 ~ !range:", !range);
 				// 点击编辑器外部时隐藏输入框，但点击输入框本身时不隐藏
-				if (!floatingInput.contains(document.activeElement)) {
+				console.log(floatingInput.contains(document.activeElement));
+				console.log(verticalMenu.contains(document.activeElement));
+				if (
+					!floatingInput.contains(document.activeElement) &&
+					!verticalMenu.contains(document.activeElement)
+				) {
+					console.log("selection-change部分else if的样式重置执行了");
 					clearHighlight();
 					floatingInput.style.display = "none";
 					aiResponse.style.display = "none";
@@ -863,7 +870,7 @@
 		sendBtn.addEventListener("click", async () => {
 			const prompt = promptInput.value;
 			if (!prompt) return;
-
+			console.log("发送按钮点击了");
 			// 获取选中的文本
 			const selectedText = currentRange
 				? quill.getText(currentRange.index, currentRange.length)
@@ -1062,6 +1069,7 @@
 
 				// 如果点击在允许区域外，且不是在选择文本
 				if (!isInFloatingInput && !hasSelection && !isInVerticalMenu) {
+					console.log("selection-change的样式清除触发了");
 					floatingInput.style.display = "none";
 					aiResponse.style.display = "none";
 					actionButtons.style.display = "none";
@@ -1079,11 +1087,11 @@
 				event.stopPropagation(); // 阻止事件冒泡
 				const actionText = this.textContent.trim();
 				promptInput.value = actionText;
-				if (currentRange) {
-					quill.setSelection(currentRange.index, currentRange.length);
-				}
+				// if (currentRange) {
+				// 	quill.setSelection(currentRange.index, currentRange.length);
+				// }
+				console.log("垂直菜单点击了");
 				sendBtn.click();
-				verticalMenu.style.display = "none"; // 隐藏菜单
 			});
 		});
 
