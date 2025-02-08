@@ -556,7 +556,6 @@
 			tableUI: true,
 			toolbar: {
 				container: [
-					["undo", "redo"], // 添加撤销重做按钮
 					[{ header: [1, 2, 3, false] }],
 					["bold", "italic", "underline"],
 					[{ align: [] }],
@@ -565,6 +564,7 @@
 					["table"], // 添加表格按钮
 					["export"], // 统一的导出按钮
 					["copy-content"], // 添加复制按钮
+					["undo", "redo"], // 添加撤销重做按钮
 				],
 				handlers: {
 					undo: function () {
