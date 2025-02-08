@@ -756,6 +756,11 @@
 
 	// 显示AI菜单函数
 	function showAIMenu(line) {
+		const selection = quill.getSelection();
+		console.log(selection)
+		if (!selection) return;
+		// 在空行情况手动设置 currentRange
+		currentRange = { index: selection.index, length: selection.length };
 		const bounds = quill.getBounds(quill.getSelection().index);
 		const editorRect = quill.container.getBoundingClientRect();
 		const editorContentRect = quill.root.getBoundingClientRect();
@@ -963,7 +968,6 @@
 			const responseContent = aiResponse.querySelector(".response-content");
 			if (responseContent) {
 				const fullText = responseContent.textContent;
-				// 提取 AI 回答部分，去掉"选中的文本是："这部分
 				const aiResponsePart = fullText.split("AI的回答：")[1];
 
 				if (aiResponsePart) {
