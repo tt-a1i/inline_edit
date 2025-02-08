@@ -510,7 +510,6 @@
 		<p>Preset build with snow theme, and some common formats.</p>
 		<p>Preset build with snow theme, and some common formats.</p>
 		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
 	</div>
 </div>
 
@@ -900,39 +899,46 @@
 			}, 1000);
 		});
 
-		// 修改内容插入函数为同步操作
+		// 修改内容插入函数
 		function insertContent(text, startIndex, isReplace = false) {
-			if (isReplace && currentRange) {
-				clearHighlight();
-				quill.deleteText(currentRange.index, currentRange.length);
+			// 使用 replacementRange 而不是 currentRange
+			if (isReplace && replacementRange) {
+				quill.deleteText(replacementRange.index, replacementRange.length);
+				quill.insertText(replacementRange.index, text);
+			} else {
+				quill.insertText(startIndex, text);
 			}
-
-			const insertPosition = isReplace ? currentRange.index : startIndex;
-			quill.insertText(insertPosition, text);
 		}
 
 		// 修改插入内容的按钮点击事件
 		document.getElementById("insertAfter").addEventListener("click", () => {
-			clearHighlight();
-			if (currentRange && aiResponse.textContent) {
-				const insertIndex = currentRange.index + currentRange.length;
-				insertContent(" " + aiResponse.textContent, insertIndex);
+			// 使用 replacementRange 代替 currentRange
+			if (replacementRange && aiResponse.querySelector(".response-content")) {
+				const aiResponseText =
+					aiResponse.querySelector(".response-content").textContent;
+				const actualResponse =
+					aiResponseText.split("AI的回答：")[1] || aiResponseText;
+				const insertIndex = replacementRange.index + replacementRange.length;
+
+				insertContent(" " + actualResponse.trim(), insertIndex, false);
 				clearHighlight();
+				closeDiffEditor();
 			}
 		});
 
-		// 修改确认替换按钮事件
-		document.getElementById("confirmReplace").addEventListener("click", () => {
-			if (!diffEditor) return;
+		// 添加一个变量来保存要替换的范围信息
+		let replacementRange = null;
 
-			const modifiedText = diffEditor.getModifiedEditor().getValue();
-			insertContent(modifiedText, currentRange.index, true);
-			clearHighlight();
-			closeDiffEditor();
-		});
-
-		// 修改 showDiffEditor 函数
+		// 修改 showDiffEditor 函数，保存替换范围
 		function showDiffEditor(originalText, modifiedText) {
+			// 保存当前范围用于后续替换
+			if (currentRange) {
+				replacementRange = { ...currentRange };
+			} else {
+				console.error("No selection range available");
+				return;
+			}
+
 			const container = document.getElementById("diffContainer");
 			const editorElement = document.getElementById("diffEditor");
 			container.style.display = "flex";
@@ -995,15 +1001,19 @@
 			}, 100);
 		}
 
-		// 确认替换按钮事件
+		// 修改确认替换按钮事件
 		document.getElementById("confirmReplace").addEventListener("click", () => {
-			if (!diffEditor) return;
+			if (!diffEditor || !replacementRange) {
+				console.error("No diff editor or replacement range available");
+				return;
+			}
 
-			// 获取修改后的内容
 			const modifiedText = diffEditor.getModifiedEditor().getValue();
 
-			// 执行替换
-			insertContent(modifiedText, currentRange.index, true);
+			// 使用保存的范围进行替换
+			insertContent(modifiedText, replacementRange.index, true);
+
+			// 清理状态
 			clearHighlight();
 			closeDiffEditor();
 		});
@@ -1026,6 +1036,9 @@
 				}
 				diffEditor = null;
 			}
+
+			// 重置替换范围
+			replacementRange = null;
 		}
 
 		// 移除原有的点击事件监听器，改用新的逻辑
