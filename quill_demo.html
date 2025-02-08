@@ -11,7 +11,7 @@
 	href="https://unpkg.com/quill-table-ui@1.0.5/dist/index.css"
 	rel="stylesheet"
 />
-<!-- 在其他 script 标签后添加 Turndown -->
+<!-- 内容导出相关库 -->
 <script src="https://unpkg.com/turndown/dist/turndown.js"></script>
 <script src="https://unpkg.com/docx@7.1.0/build/index.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -20,9 +20,8 @@
 	rel="stylesheet"
 	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
 />
-<!-- 在其他 script 标签后添加 markdown-it -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/13.0.1/markdown-it.min.js"></script>
-<!-- 替换原有的 Monaco Editor 资源引入 -->
+<!-- Monaco Editor 资源引入 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/loader.min.js"></script>
 <style>
 	/* flex 布局，新按钮会被放置在末尾 */
@@ -565,7 +564,6 @@
 </div>
 
 <!-- 在 body 最后添加测试按钮 -->
-<button class="test-markdown-btn" onclick="testMarkdownRender()">
 	<button class="test-markdown-btn" onclick="testMarkdownRender()">
 		测试 Markdown 渲染
 	</button>
@@ -701,7 +699,7 @@
 		// 更新创建时间显示
 		function updateCreationTimeDisplay() {
 			const currentTime = getCurrentTime();
-			creationTimeDisplay.textContent = `创建时间: ${currentTime}`;
+			creationTimeDisplay.textContent = `最近修改: ${currentTime}`;
 		}
 
 		// 计算字数并更新显示
@@ -742,9 +740,8 @@
 					posCloseToBottom = false;
 				}, 0);
 			}
-
-			// 保留原有的字数统计更新
 			updateWordCountDisplay();
+			updateCreationTimeDisplay();
 		});
 
 		function copyContentToClipboardAsText() {
