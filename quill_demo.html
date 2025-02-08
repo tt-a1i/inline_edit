@@ -121,11 +121,21 @@
 
 	.action-buttons {
 		display: none;
-		justify-content: space-between;
-		gap: 8px;
 		margin-top: 12px;
 		padding-top: 12px;
 		border-top: 1px solid #e9ecef;
+	}
+
+	.action-buttons {
+		display: none;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.left-buttons,
+	.right-buttons {
+		display: flex;
+		gap: 8px;
 	}
 
 	.action-buttons button {
@@ -137,11 +147,18 @@
 		color: #409eff;
 		font-size: 13px;
 		transition: all 0.3s ease;
+		display: flex;
+		align-items: center;
+		gap: 4px;
 	}
 
 	.action-buttons button:hover {
 		background: #ecf5ff;
 		border-color: #409eff;
+	}
+
+	.action-buttons button i {
+		font-size: 12px;
 	}
 
 	.highlight-selection {
@@ -408,162 +425,111 @@
 	}
 
 	/* 添加 AI 响应复制按钮样式 */
-	.ai-response-copy-btn {
-		position: absolute;
-		top: 10px;
-		right: 10px;
-		padding: 4px 8px;
-		background: transparent;
-		border: 1px solid #ddd;
-		border-radius: 4px;
-		cursor: pointer;
-		color: #666;
-		display: none; /* 默认隐藏 */
-		align-items: center;
-		gap: 4px;
-		font-size: 12px;
-		transition: all 0.2s;
-		display: none; /* 默认隐藏 */
-	}
-
-	.ai-response-copy-btn:hover {
-		background: #f5f5f5;
-		color: #409eff;
-		border-color: #409eff;
-	}
-
+	.ai-response-copy-btn,
+	.ai-response-regenerate-btn,
 	.ai-response-header {
-		display: flex;
-		justify-content: flex-end;
-		gap: 8px;
-		margin-bottom: 10px;
-	}
-
-	.ai-response-regenerate-btn {
-		position: absolute;
-		top: 10px;
-		right: 80px; /* 为复制按钮留出空间 */
-		padding: 4px 8px;
-		background: transparent;
-		border: 1px solid #ddd;
-		border-radius: 4px;
-		cursor: pointer;
-		color: #666;
-		display: none; /* 默认隐藏 */
-		align-items: center;
-		gap: 4px;
-		font-size: 12px;
-		transition: all 0.2s;
-	}
-
-	.ai-response-regenerate-btn:hover {
-		background: #f5f5f5;
-		color: #409eff;
-		border-color: #409eff;
-	}
-
-	.ai-response-regenerate-btn i {
-		font-size: 12px;
+		display: none;
 	}
 </style>
-
-<div class="editor-container">
-	<div id="editor">
-		<h2>Demo Content</h2>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-		<p>Preset build with snow theme, and some common formats.</p>
-	</div>
-</div>
-
-<div class="floating-input" id="floatingInput" tabindex="0">
-	<div class="input-container">
-		<input type="text" id="promptInput" placeholder="输入提示..."/>
-		<button class="send-btn" id="sendBtn">
-			<i class="fas fa-paper-plane"></i>
-			<span>发送</span>
-		</button>
-	</div>
-	<div class="ai-response" id="aiResponse">
-		<div class="ai-response-header">
-			<button class="ai-response-copy-btn" id="aiResponseCopyBtn">
-				<i class="fas fa-copy"></i>
-				复制
-			</button>
-			<button class="ai-response-regenerate-btn" id="aiResponseRegenerateBtn">
-				<i class="fas fa-sync-alt"></i>
-				重新生成
-			</button>
-		</div>
-		<div class="response-content"></div>
-		<div class="action-buttons" id="actionButtons">
-			<button id="insertAfter">
-				<i class="fas fa-plus"></i>
-				插入到后面
-			</button>
-			<button id="replace">
-				<i class="fas fa-exchange-alt"></i>
-				替换选中内容
-			</button>
+<body>
+	<div class="editor-container">
+		<div id="editor">
+			<h2>Demo Content</h2>
+			<p>Preset build with snow theme, and some common formats.</p>
+			<p>Preset build with snow theme, and some common formats.</p>
+			<p>Preset build with snow theme, and some common formats.</p>
+			<p>Preset build with snow theme, and some common formats.</p>
+			<p>Preset build with snow theme, and some common formats.</p>
+			<p>Preset build with snow theme, and some common formats.</p>
+			<p>Preset build with snow theme, and some common formats.</p>
+			<p>Preset build with snow theme, and some common formats.</p>
+			<p>Preset build with snow theme, and some common formats.</p>
+			<p>Preset build with snow theme, and some common formats.</p>
+			<p>Preset build with snow theme, and some common formats.</p>
+			<p>Preset build with snow theme, and some common formats.</p>
+			<p>Preset build with snow theme, and some common formats.</p>
+			<p>Preset build with snow theme, and some common formats.</p>
+			<p>Preset build with snow theme, and some common formats.</p>
+			<p>Preset build with snow theme, and some common formats.</p>
+			<p>Preset build with snow theme, and some common formats.</p>
+			<p>Preset build with snow theme, and some common formats.</p>
+			<p>Preset build with snow theme, and some common formats.</p>
+			<p>Preset build with snow theme, and some common formats.</p>
+			<p>Preset build with snow theme, and some common formats.</p>
+			<p>Preset build with snow theme, and some common formats.</p>
+			<p>Preset build with snow theme, and some common formats.</p>
+			<p>Preset build with snow theme, and some common formats.</p>
+			<p>Preset build with snow theme, and some common formats.</p>
+			<p>Preset build with snow theme, and some common formats.</p>
+			<p>Preset build with snow theme, and some common formats.</p>
+			<p>Preset build with snow theme, and some common formats.</p>
+			<p>Preset build with snow theme, and some common formats.</p>
+			<p>Preset build with snow theme, and some common formats.</p>
+			<p>Preset build with snow theme, and some common formats.</p>
+			<p>Preset build with snow theme, and some common formats.</p>
+			<p>Preset build with snow theme, and some common formats.</p>
+			<p>Preset build with snow theme, and some common formats.</p>
+			<p>Preset build with snow theme, and some common formats.</p>
+			<p>Preset build with snow theme, and some common formats.</p>
+			<p>Preset build with snow theme, and some common formats.</p>
+			<p>Preset build with snow theme, and some common formats.</p>
 		</div>
 	</div>
-</div>
 
-<!-- 修改垂直菜单HTML结构 -->
-<div class="vertical-menu" id="verticalMenu" tabindex="0">
-	<div class="menu-item">📝 单词语法纠错</div>
-	<div class="menu-item">✨ AI润色</div>
-	<div class="menu-item">📊 AI缩写</div>
-	<div class="menu-item">📈 AI扩写</div>
-	<div class="menu-item">📋 AI总结</div>
-	<div class="menu-item">🇨🇳 翻译成中文</div>
-	<div class="menu-item">🇬🇧 翻译成英文</div>
-</div>
+	<div class="floating-input" id="floatingInput" tabindex="0">
+		<div class="input-container">
+			<input type="text" id="promptInput" placeholder="输入提示..." />
+			<button class="send-btn" id="sendBtn">
+				<i class="fas fa-paper-plane"></i>
+				<span>发送</span>
+			</button>
+		</div>
+		<div class="ai-response" id="aiResponse">
+			<div class="response-content"></div>
+			<div class="action-buttons" id="actionButtons">
+				<div class="left-buttons">
+					<button id="insertAfter">
+						<i class="fas fa-plus"></i>
+						插入到后面
+					</button>
+					<button id="replace">
+						<i class="fas fa-exchange-alt"></i>
+						替换选中内容
+					</button>
+				</div>
+				<div class="right-buttons">
+					<button id="aiResponseRegenerateBtn">
+						<i class="fas fa-sync-alt"></i>
+						重新生成
+					</button>
+					<button id="aiResponseCopyBtn">
+						<i class="fas fa-copy"></i>
+						复制
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
 
-<!-- 在 editor-container div 后添加导出菜单 -->
-<div class="export-menu" id="exportMenu">
-	<div class="export-menu-item" data-format="markdown">导出为 Markdown</div>
-	<div class="export-menu-item" data-format="docx">导出为 Word</div>
-	<div class="export-menu-item" data-format="pdf">导出为 PDF</div>
-</div>
+	<!-- 修改垂直菜单HTML结构 -->
+	<div class="vertical-menu" id="verticalMenu" tabindex="0">
+		<div class="menu-item">📝 单词语法纠错</div>
+		<div class="menu-item">✨ AI润色</div>
+		<div class="menu-item">📊 AI缩写</div>
+		<div class="menu-item">📈 AI扩写</div>
+		<div class="menu-item">📋 AI总结</div>
+		<div class="menu-item">🇨🇳 翻译成中文</div>
+		<div class="menu-item">🇬🇧 翻译成英文</div>
+	</div>
 
-<!-- 在 body 最后添加测试按钮 -->
+	<!-- 在 editor-container div 后添加导出菜单 -->
+	<div class="export-menu" id="exportMenu">
+		<div class="export-menu-item" data-format="markdown">导出为 Markdown</div>
+		<div class="export-menu-item" data-format="docx">导出为 Word</div>
+		<div class="export-menu-item" data-format="pdf">导出为 PDF</div>
+	</div>
+
+	<!-- 在 body 最后添加测试按钮 -->
 	<button class="test-markdown-btn" onclick="testMarkdownRender()">
 		测试 Markdown 渲染
 	</button>
@@ -578,834 +544,826 @@
 			</div>
 		</div>
 	</div>
+</body>
 
-	<script>
-		Quill.register("modules/tableUI", quillTableUI.default);
+<script>
+	Quill.register("modules/tableUI", quillTableUI.default);
 
-		const options = {
-			// debug: "info",
-			modules: {
-				table: true,
-				tableUI: true,
-				toolbar: {
-					container: [
-						["undo", "redo"], // 添加撤销重做按钮
-						[{ header: [1, 2, 3, false] }],
-						["bold", "italic", "underline"],
-						[{ align: [] }],
-						// ["code-block"],
-						[{ list: "ordered" }, { list: "bullet" }],
-						["table"], // 添加表格按钮
-						["export"], // 统一的导出按钮
-						["copy-content"], // 添加复制按钮
-					],
-					handlers: {
-						undo: function () {
-							quill.history.undo();
-						},
-						redo: function () {
-							quill.history.redo();
-						},
-						export: function (value) {
-							showExportMenu();
-						},
-						table: function (value) {
-							table.insertTable(3, 3);
-						},
-						"copy-content": function () {
-							// 添加复制按钮的 handler
-							copyContentToClipboardAsText();
-						},
+	const options = {
+		// debug: "info",
+		modules: {
+			table: true,
+			tableUI: true,
+			toolbar: {
+				container: [
+					["undo", "redo"], // 添加撤销重做按钮
+					[{ header: [1, 2, 3, false] }],
+					["bold", "italic", "underline"],
+					[{ align: [] }],
+					// ["code-block"],
+					[{ list: "ordered" }, { list: "bullet" }],
+					["table"], // 添加表格按钮
+					["export"], // 统一的导出按钮
+					["copy-content"], // 添加复制按钮
+				],
+				handlers: {
+					undo: function () {
+						quill.history.undo();
+					},
+					redo: function () {
+						quill.history.redo();
+					},
+					export: function (value) {
+						showExportMenu();
+					},
+					table: function (value) {
+						table.insertTable(3, 3);
+					},
+					"copy-content": function () {
+						// 添加复制按钮的 handler
+						copyContentToClipboardAsText();
 					},
 				},
-				history: {
-					delay: 1000,
-					maxStack: 500,
-					//true表示只有用户操作才会被记录，false表示所有操作都会被记录
-					userOnly: false,
-				},
 			},
+			history: {
+				delay: 1000,
+				maxStack: 500,
+				//true表示只有用户操作才会被记录，false表示所有操作都会被记录
+				userOnly: false,
+			},
+		},
 
-			placeholder: "Compose an epic...",
-			theme: "snow",
-		};
-		const quill = new Quill("#editor", options);
-		const table = quill.getModule("table");
+		placeholder: "Compose an epic...",
+		theme: "snow",
+	};
+	const quill = new Quill("#editor", options);
+	const table = quill.getModule("table");
 
-		// 用于判断菜单是否靠近底部,底部时向上显示
-		let posCloseToBottom = false;
-		let currentRange = null;
+	// 用于判断菜单是否靠近底部,底部时向上显示
+	let posCloseToBottom = false;
+	let currentRange = null;
 
-		const floatingInput = document.getElementById("floatingInput");
-		const verticalMenu = document.getElementById("verticalMenu");
-		const promptInput = document.getElementById("promptInput");
-		const sendBtn = document.getElementById("sendBtn");
-		const aiResponse = document.getElementById("aiResponse");
-		const actionButtons = document.getElementById("actionButtons");
+	const floatingInput = document.getElementById("floatingInput");
+	const verticalMenu = document.getElementById("verticalMenu");
+	const promptInput = document.getElementById("promptInput");
+	const sendBtn = document.getElementById("sendBtn");
+	const aiResponse = document.getElementById("aiResponse");
+	const actionButtons = document.getElementById("actionButtons");
 
-		// 选中内容部分的高亮处理
-		function highlightSelection(range) {
-			if (range && range.length > 0) {
-				quill.formatText(range.index, range.length, "background", "#b4d5fe");
-			}
+	// 选中内容部分的高亮处理
+	function highlightSelection(range) {
+		if (range && range.length > 0) {
+			quill.formatText(range.index, range.length, "background", "#b4d5fe");
 		}
+	}
 
-		// 修改 clearHighlight 函数
-		function clearHighlight() {
-			if (currentRange) {
-				const tempRange = currentRange;
-				currentRange = null; // 先重置 currentRange
+	// 修改 clearHighlight 函数
+	function clearHighlight() {
+		if (currentRange) {
+			const tempRange = currentRange;
+			currentRange = null; // 先重置 currentRange
 
-				// 使用 setTimeout 确保在下一个事件循环中执行格式清除
-				setTimeout(() => {
-					quill.formatText(
-						tempRange.index,
-						tempRange.length,
-						"background",
-						false,
-						"api" // 指定源为 api 避免触发 text-change 事件处理
-					);
-				}, 0);
-			}
-		}
-
-		// 获取工具栏容器
-		const toolbar = quill.getModule("toolbar").container;
-
-		// 创建显示创建时间的 span 元素
-		const creationTimeDisplay = document.createElement("span");
-		creationTimeDisplay.id = "creationTimeDisplay";
-		creationTimeDisplay.classList.add("ql-creation-time"); // 添加 CSS 类，方便样式控制
-		toolbar.prepend(creationTimeDisplay); // 将创建时间显示元素添加到工具栏的 *最前面*
-
-		// 创建显示字数统计的 span 元素
-		const wordCountDisplay = document.createElement("span");
-		wordCountDisplay.id = "wordCountDisplay";
-		wordCountDisplay.classList.add("ql-word-count"); // 添加 CSS 类，方便样式控制
-		toolbar.prepend(wordCountDisplay); //  将字数统计显示元素添加到工具栏的 *最前面* (它会在创建时间元素的右边，因为是 prepend)
-
-		// 获取并格式化当前时间
-		function getCurrentTime() {
-			const now = new Date();
-			const hours = String(now.getHours()).padStart(2, "0");
-			const minutes = String(now.getMinutes()).padStart(2, "0");
-			const seconds = String(now.getSeconds()).padStart(2, "0");
-			const day = String(now.getDate()).padStart(2, "0");
-			const month = String(now.getMonth() + 1).padStart(2, "0"); // 月份从 0 开始
-			const year = now.getFullYear();
-			return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-		}
-
-		// 更新创建时间显示
-		function updateCreationTimeDisplay() {
-			const currentTime = getCurrentTime();
-			creationTimeDisplay.textContent = `最近修改: ${currentTime}`;
-		}
-
-		// 计算字数并更新显示
-		function updateWordCountDisplay() {
-			const text = quill.getText(); // 获取编辑器纯文本内容
-			const wordCount = text
-				.replace(
-					/[\u3002\uff01\uff0c\uff1a\uff1b\uff1f\u0021-\u002f\u003a-\u0040\u005b-\u0060\u007b-\u007e]/g,
-					""
-				) // 移除标点符号
-				.replace(/\s+/g, "") // 移除所有空格
-				.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, "").length; // 移除特殊符号 // 直接计算字符数，即字数
-			wordCountDisplay.textContent = `字数: ${wordCount}`;
-		}
-
-		// 初始化创建时间显示
-		updateCreationTimeDisplay();
-		// 初始化字数统计显示
-		updateWordCountDisplay();
-
-		// 修改 text-change 事件监听
-		quill.on("text-change", function (delta, oldDelta, source) {
-			if (source === "user") {
-				// 使用 setTimeout 确保在渲染完成后再清除高亮
-				setTimeout(() => {
-					console.log("text-change的样式重置执行了");
-					// 清除所有背景色样式
-					const length = quill.getLength();
-					quill.formatText(0, length, "background", false, "api");
-
-					// 重置状态和隐藏界面元素
-					currentRange = null;
-					floatingInput.style.display = "none";
-					aiResponse.style.display = "none";
-					verticalMenu.style.display = "none";
-					actionButtons.style.display = "none";
-					promptInput.value = "";
-					posCloseToBottom = false;
-				}, 0);
-			}
-			updateWordCountDisplay();
-			updateCreationTimeDisplay();
-		});
-
-		function copyContentToClipboardAsText() {
-			const content = quill.getText(); // 使用 getText() 获取纯文本内容
-			navigator.clipboard
-				.writeText(content)
-				.then(() => {
-					// alert("复制成功!"); // 提示信息也相应修改
-				})
-				.catch((err) => {
-					console.error("复制内容失败: ", err);
-					// alert("复制内容失败，请重试。");
-				});
-		}
-
-		/**
-		 * 处理 Quill 编辑器中的选择变化事件
-		 *
-		 * @param {Object} range - 当前选择的范围对象，{index, length}。
-		 * @param {Object} oldRange - 之前的选择范围对象。
-		 * @param {string} source - 触发选择变化的来源，例如 'user' 或 'api'。
-		 * 通过发布订阅模式，在选中文本时quill内部emit对应的时间名的回调
-		 */
-		quill.on("selection-change", function (range, oldRange, source) {
-			// console.log("🚀 ~ range:", range);
-			if (range && range.length > 0) {
-				//选中内容后，继续选中新的内容时，清除之前选中内容的高亮
-				if (currentRange) clearHighlight();
-
-				//getBounds() 方法用于获取文本选区的位置和尺寸信息,相对于左上角原点
-				const bounds = quill.getBounds(range.index, range.length);
-				currentRange = range;
-
-				// 添加高亮
-				highlightSelection(range);
-
-				// 获取编辑器容器的位置信息
-				const editorRect = quill.container.getBoundingClientRect();
-
-				// 获取编辑器的实际内容区域宽度
-				const editorContentRect = quill.root.getBoundingClientRect();
-				const editorWidth = editorContentRect.width;
-
-				// 设置元素宽度为实际内容区域宽度
-				[floatingInput, aiResponse].forEach((element) => {
-					element.style.width = `${editorWidth - 20}px`;
-				});
-				// 计算左对齐位置（与编辑器内容左边界对齐）
-				const leftPosition = editorContentRect.left;
-
-				// 定义统一间距
-				const ELEMENT_SPACING = 5;
-
-				// 显示所有元素以获取正确高度
-				floatingInput.style.display = "block";
-				verticalMenu.style.display = "block";
-				aiResponse.style.display = "none";
-
-				// 获取所有元素高度
-				const dimensions = {
-					window: window.innerHeight,
-					floatingInput: floatingInput.offsetHeight,
-					verticalMenu: verticalMenu.offsetHeight,
-				};
-
-				// 计算基础位置
-				let topPosition = editorRect.top + bounds.bottom + ELEMENT_SPACING;
-
-				if (
-					topPosition + dimensions.floatingInput + dimensions.verticalMenu >
-					dimensions.window
-				) {
-					// 向上布局模式
-					floatingInput.style.top = `${
-						topPosition - dimensions.floatingInput - bounds.height - 10
-					}px`;
-					verticalMenu.style.top = `${
-						topPosition -
-						dimensions.floatingInput -
-						bounds.height -
-						dimensions.verticalMenu -
-						13
-					}px`;
-				} else {
-					posCloseToBottom = false;
-					// 向下布局模式
-					// 从上到下布局：输入框 -> 垂直菜单
-					floatingInput.style.top = `${topPosition}px`;
-					verticalMenu.style.top = `${
-						topPosition + dimensions.floatingInput + ELEMENT_SPACING
-					}px`;
-				}
-
-				// 统一左对齐
-				[floatingInput, verticalMenu, aiResponse].forEach((element) => {
-					element.style.left = `${leftPosition}px`;
-					element.style.position = "fixed";
-				});
-
-				// 设置 AI 响应区域的样式，它会在需要时显示
-				aiResponse.style.position = "fixed";
-				aiResponse.style.left = `${leftPosition}px`;
-			} else if (!range) {
-				// console.log("🚀 ~ !range:", !range);
-				// 点击编辑器外部时隐藏输入框，但点击输入框本身时不隐藏
-				console.log(floatingInput.contains(document.activeElement));
-				console.log(verticalMenu.contains(document.activeElement));
-				if (
-					!floatingInput.contains(document.activeElement) &&
-					!verticalMenu.contains(document.activeElement)
-				) {
-					console.log("selection-change部分else if的样式重置执行了");
-					clearHighlight();
-					floatingInput.style.display = "none";
-					aiResponse.style.display = "none";
-					const verticalMenu = document.getElementById("verticalMenu");
-					verticalMenu.style.display = "none"; // 隐藏菜单
-				}
-			}
-		});
-
-		// 发送按钮点击事件
-		sendBtn.addEventListener("click", async () => {
-			const prompt = promptInput.value;
-			if (!prompt) return;
-			console.log("发送按钮点击了");
-			// 获取选中的文本
-			const selectedText = currentRange
-				? quill.getText(currentRange.index, currentRange.length)
-				: "";
-
-			// 显示AI响应区域
-			verticalMenu.style.display = "none";
-			aiResponse.style.display = "block";
-			const responseContent = aiResponse.querySelector(".response-content");
-			const copyBtn = document.getElementById("aiResponseCopyBtn");
-			const regenerateBtn = document.getElementById("aiResponseRegenerateBtn");
-
-			// 在生成回答时隐藏按钮
-			copyBtn.style.display = "none";
-			regenerateBtn.style.display = "none";
-			responseContent.textContent = "正在生成回答...";
-
-			// 设置 AI 响应位置在输入框下方
-			const inputRect = floatingInput.getBoundingClientRect();
-			aiResponse.style.top = `${inputRect.bottom - 5}px`; // 5px 间距
-
-			// 模拟API调用延迟
+			// 使用 setTimeout 确保在下一个事件循环中执行格式清除
 			setTimeout(() => {
-				responseContent.textContent = `选中的文本是：${selectedText}\nAI的回答：${prompt}`;
-				actionButtons.style.display = "flex";
-				// 内容生成完成后显示按钮
-				copyBtn.style.display = "flex";
-				regenerateBtn.style.display = "flex";
-			}, 1000);
-		});
-
-		// 修改内容插入函数
-		function insertContent(text, startIndex, isReplace = false) {
-			// 使用 replacementRange 而不是 currentRange
-			if (isReplace && replacementRange) {
-				quill.deleteText(replacementRange.index, replacementRange.length);
-				quill.insertText(replacementRange.index, text);
-			} else {
-				quill.insertText(startIndex, text);
-			}
-		}
-
-		// 修改插入内容的按钮点击事件
-		document.getElementById("insertAfter").addEventListener("click", () => {
-			// 使用 currentRange，因为这个操作不需要保存范围
-			if (currentRange) {
-				const responseContent = aiResponse.querySelector(".response-content");
-				if (responseContent) {
-					const fullText = responseContent.textContent;
-					// 提取 AI 回答部分，去掉"选中的文本是："这部分
-					const aiResponsePart = fullText.split("AI的回答：")[1];
-
-					if (aiResponsePart) {
-						const insertIndex = currentRange.index + currentRange.length;
-						// 在选中内容后面插入，添加一个空格和处理后的 AI 响应
-						insertContent(" " + aiResponsePart.trim(), insertIndex, false);
-
-						aiResponse.style.display = "none";
-						floatingInput.style.display = "none";
-						actionButtons.style.display = "none";
-					}
-				}
-			}
-			const length = quill.getLength();
-			quill.formatText(0, length, "background", false, "api");
-		});
-
-		// 添加一个变量来保存要替换的范围信息
-		let replacementRange = null;
-
-		// 修改 showDiffEditor 函数，保存替换范围
-		function showDiffEditor(originalText, modifiedText) {
-			// 保存当前范围用于后续替换
-			if (currentRange) {
-				replacementRange = { ...currentRange };
-			} else {
-				console.error("No selection range available");
-				return;
-			}
-
-			const container = document.getElementById("diffContainer");
-			const editorElement = document.getElementById("diffEditor");
-			container.style.display = "flex";
-
-			// 如果编辑器已存在，先销毁它
-			if (diffEditor) {
-				diffEditor.dispose();
-				diffEditor = null;
-			}
-
-			// 创建新的对比编辑器实例，设置右侧可编辑
-			diffEditor = monaco.editor.createDiffEditor(editorElement, {
-				automaticLayout: true,
-				readOnly: false, // 允许编辑
-				theme: "vs-dark",
-				renderSideBySide: true,
-				scrollBeyondLastLine: false,
-				minimap: {
-					enabled: false,
-				},
-				originalEditable: false, // 左侧原文不可编辑
-				modifiedEditable: true, // 右侧新内容可编辑
-			});
-
-			// 创建原始文本和修改后文本的模型
-			const originalModel = monaco.editor.createModel(
-				originalText,
-				"text/plain"
-			);
-			const modifiedModel = monaco.editor.createModel(
-				modifiedText,
-				"text/plain",
-				monaco.Uri.parse("modified.txt")
-			); // 给修改后的文本一个唯一的 URI
-
-			// 设置模型
-			diffEditor.setModel({
-				original: originalModel,
-				modified: modifiedModel,
-			});
-
-			// 设置修改后内容的编辑器的一些特定配置
-			const modifiedEditor = diffEditor.getModifiedEditor();
-			modifiedEditor.updateOptions({
-				readOnly: false,
-				// 添加一些编辑友好的配置
-				lineNumbers: "on",
-				wordWrap: "on",
-				scrollBeyondLastLine: false,
-				minimap: { enabled: false },
-				folding: true,
-				fontSize: 14,
-				lineHeight: 20,
-				suggestOnTriggerCharacters: false, // 禁用自动补全
-			});
-
-			// 聚焦到可编辑区域
-			setTimeout(() => {
-				modifiedEditor.focus();
-			}, 100);
-		}
-
-		// 修改确认替换按钮事件
-		document.getElementById("confirmReplace").addEventListener("click", () => {
-			if (!diffEditor || !replacementRange) {
-				console.error("No diff editor or replacement range available");
-				return;
-			}
-
-			const modifiedText = diffEditor.getModifiedEditor().getValue();
-
-			// 使用保存的范围进行替换
-			insertContent(modifiedText, replacementRange.index, true);
-
-			// 清理状态
-			clearHighlight();
-			closeDiffEditor();
-		});
-
-		// 修改关闭对比编辑器函数
-		function closeDiffEditor() {
-			const container = document.getElementById("diffContainer");
-			container.style.display = "none";
-
-			if (diffEditor) {
-				try {
-					const models = diffEditor.getModel();
-					if (models) {
-						if (models.original) models.original.dispose();
-						if (models.modified) models.modified.dispose();
-					}
-					diffEditor.dispose();
-				} catch (error) {
-					console.error("Error disposing editor:", error);
-				}
-				diffEditor = null;
-			}
-
-			// 重置替换范围
-			replacementRange = null;
-		}
-
-		// 移除原有的点击事件监听器，改用新的逻辑
-		document.addEventListener("mouseup", (event) => {
-			// 延迟执行以确保selection-change事件先触发
-			setTimeout(() => {
-				const target = event.target;
-				const verticalMenu = document.getElementById("verticalMenu");
-				const isInVerticalMenu = verticalMenu.contains(target);
-				if (verticalMenu.contains(target)) return;
-				// 检查点击目标是否在允许的区域内
-				const isInFloatingInput = floatingInput.contains(target);
-				const isInEditor = quill.container.contains(target);
-				const hasSelection =
-					quill.getSelection() && quill.getSelection().length > 0;
-
-				// 如果点击在允许区域外，且不是在选择文本
-				if (!isInFloatingInput && !hasSelection && !isInVerticalMenu) {
-					console.log("selection-change的样式清除触发了");
-					floatingInput.style.display = "none";
-					aiResponse.style.display = "none";
-					actionButtons.style.display = "none";
-					verticalMenu.style.display = "none"; // 隐藏菜单
-					promptInput.value = "";
-					clearHighlight(); // 清除高亮
-					posCloseToBottom = false;
-				}
+				quill.formatText(
+					tempRange.index,
+					tempRange.length,
+					"background",
+					false,
+					"api" // 指定源为 api 避免触发 text-change 事件处理
+				);
 			}, 0);
-		});
+		}
+	}
 
-		// 选中后的ai菜单项点击事件
-		document.querySelectorAll(".menu-item").forEach((item) => {
-			item.addEventListener("click", function (event) {
-				event.stopPropagation(); // 阻止事件冒泡
-				const actionText = this.textContent.trim();
-				promptInput.value = actionText;
-				// if (currentRange) {
-				// 	quill.setSelection(currentRange.index, currentRange.length);
-				// }
-				console.log("垂直菜单点击了");
-				sendBtn.click();
+	// 获取工具栏容器
+	const toolbar = quill.getModule("toolbar").container;
+
+	// 创建显示创建时间的 span 元素
+	const creationTimeDisplay = document.createElement("span");
+	creationTimeDisplay.id = "creationTimeDisplay";
+	creationTimeDisplay.classList.add("ql-creation-time"); // 添加 CSS 类，方便样式控制
+	toolbar.prepend(creationTimeDisplay); // 将创建时间显示元素添加到工具栏的 *最前面*
+
+	// 创建显示字数统计的 span 元素
+	const wordCountDisplay = document.createElement("span");
+	wordCountDisplay.id = "wordCountDisplay";
+	wordCountDisplay.classList.add("ql-word-count"); // 添加 CSS 类，方便样式控制
+	toolbar.prepend(wordCountDisplay); //  将字数统计显示元素添加到工具栏的 *最前面* (它会在创建时间元素的右边，因为是 prepend)
+
+	// 获取并格式化当前时间
+	function getCurrentTime() {
+		const now = new Date();
+		const hours = String(now.getHours()).padStart(2, "0");
+		const minutes = String(now.getMinutes()).padStart(2, "0");
+		const seconds = String(now.getSeconds()).padStart(2, "0");
+		const day = String(now.getDate()).padStart(2, "0");
+		const month = String(now.getMonth() + 1).padStart(2, "0"); // 月份从 0 开始
+		const year = now.getFullYear();
+		return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+	}
+
+	// 更新创建时间显示
+	function updateCreationTimeDisplay() {
+		const currentTime = getCurrentTime();
+		creationTimeDisplay.textContent = `最近修改: ${currentTime}`;
+	}
+
+	// 计算字数并更新显示
+	function updateWordCountDisplay() {
+		const text = quill.getText(); // 获取编辑器纯文本内容
+		const wordCount = text
+			.replace(
+				/[\u3002\uff01\uff0c\uff1a\uff1b\uff1f\u0021-\u002f\u003a-\u0040\u005b-\u0060\u007b-\u007e]/g,
+				""
+			) // 移除标点符号
+			.replace(/\s+/g, "") // 移除所有空格
+			.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, "").length; // 移除特殊符号 // 直接计算字符数，即字数
+		wordCountDisplay.textContent = `字数: ${wordCount}`;
+	}
+
+	// 初始化创建时间显示
+	updateCreationTimeDisplay();
+	// 初始化字数统计显示
+	updateWordCountDisplay();
+
+	// 修改 text-change 事件监听
+	quill.on("text-change", function (delta, oldDelta, source) {
+		if (source === "user") {
+			// 使用 setTimeout 确保在渲染完成后再清除高亮
+			setTimeout(() => {
+				console.log("text-change的样式重置执行了");
+				// 清除所有背景色样式
+				const length = quill.getLength();
+				quill.formatText(0, length, "background", false, "api");
+
+				// 重置状态和隐藏界面元素
+				currentRange = null;
+				floatingInput.style.display = "none";
+				aiResponse.style.display = "none";
+				verticalMenu.style.display = "none";
+				actionButtons.style.display = "none";
+				promptInput.value = "";
+				posCloseToBottom = false;
+			}, 0);
+		}
+		updateWordCountDisplay();
+		updateCreationTimeDisplay();
+	});
+
+	function copyContentToClipboardAsText() {
+		const content = quill.getText(); // 使用 getText() 获取纯文本内容
+		navigator.clipboard
+			.writeText(content)
+			.then(() => {
+				// alert("复制成功!"); // 提示信息也相应修改
+			})
+			.catch((err) => {
+				console.error("复制内容失败: ", err);
+				// alert("复制内容失败，请重试。");
 			});
-		});
+	}
 
-		// 显示导出菜单
-		function showExportMenu() {
-			const exportMenu = document.getElementById("exportMenu");
-			const toolbarButton = document.querySelector(".ql-export");
-			const rect = toolbarButton.getBoundingClientRect();
+	/**
+	 * 处理 Quill 编辑器中的选择变化事件
+	 *
+	 * @param {Object} range - 当前选择的范围对象，{index, length}。
+	 * @param {Object} oldRange - 之前的选择范围对象。
+	 * @param {string} source - 触发选择变化的来源，例如 'user' 或 'api'。
+	 * 通过发布订阅模式，在选中文本时quill内部emit对应的时间名的回调
+	 */
+	quill.on("selection-change", function (range, oldRange, source) {
+		// console.log("🚀 ~ range:", range);
+		if (range && range.length > 0) {
+			//选中内容后，继续选中新的内容时，清除之前选中内容的高亮
+			if (currentRange) clearHighlight();
 
-			exportMenu.style.display = "block";
-			exportMenu.style.top = `${rect.bottom + window.scrollY}px`;
-			exportMenu.style.left = `${rect.left}px`;
+			//getBounds() 方法用于获取文本选区的位置和尺寸信息,相对于左上角原点
+			const bounds = quill.getBounds(range.index, range.length);
+			currentRange = range;
+
+			// 添加高亮
+			highlightSelection(range);
+
+			// 获取编辑器容器的位置信息
+			const editorRect = quill.container.getBoundingClientRect();
+
+			// 获取编辑器的实际内容区域宽度
+			const editorContentRect = quill.root.getBoundingClientRect();
+			const editorWidth = editorContentRect.width;
+
+			// 设置元素宽度为实际内容区域宽度
+			[floatingInput, aiResponse].forEach((element) => {
+				element.style.width = `${editorWidth - 20}px`;
+			});
+			// 计算左对齐位置（与编辑器内容左边界对齐）
+			const leftPosition = editorContentRect.left;
+
+			// 定义统一间距
+			const ELEMENT_SPACING = 5;
+
+			// 显示所有元素以获取正确高度
+			floatingInput.style.display = "block";
+			verticalMenu.style.display = "block";
+			aiResponse.style.display = "none";
+
+			// 获取所有元素高度
+			const dimensions = {
+				window: window.innerHeight,
+				floatingInput: floatingInput.offsetHeight,
+				verticalMenu: verticalMenu.offsetHeight,
+			};
+
+			// 计算基础位置
+			let topPosition = editorRect.top + bounds.bottom + ELEMENT_SPACING;
+
+			if (
+				topPosition + dimensions.floatingInput + dimensions.verticalMenu >
+				dimensions.window
+			) {
+				// 向上布局模式
+				floatingInput.style.top = `${
+					topPosition - dimensions.floatingInput - bounds.height - 10
+				}px`;
+				verticalMenu.style.top = `${
+					topPosition -
+					dimensions.floatingInput -
+					bounds.height -
+					dimensions.verticalMenu -
+					13
+				}px`;
+			} else {
+				posCloseToBottom = false;
+				// 向下布局模式
+				// 从上到下布局：输入框 -> 垂直菜单
+				floatingInput.style.top = `${topPosition}px`;
+				verticalMenu.style.top = `${
+					topPosition + dimensions.floatingInput + ELEMENT_SPACING
+				}px`;
+			}
+
+			// 统一左对齐
+			[floatingInput, verticalMenu, aiResponse].forEach((element) => {
+				element.style.left = `${leftPosition}px`;
+				element.style.position = "fixed";
+			});
+
+			// 设置 AI 响应区域的样式，它会在需要时显示
+			aiResponse.style.position = "fixed";
+			aiResponse.style.left = `${leftPosition}px`;
+		} else if (!range) {
+			// console.log("🚀 ~ !range:", !range);
+			// 点击编辑器外部时隐藏输入框，但点击输入框本身时不隐藏
+			console.log(floatingInput.contains(document.activeElement));
+			console.log(verticalMenu.contains(document.activeElement));
+			if (
+				!floatingInput.contains(document.activeElement) &&
+				!verticalMenu.contains(document.activeElement)
+			) {
+				console.log("selection-change部分else if的样式重置执行了");
+				clearHighlight();
+				floatingInput.style.display = "none";
+				aiResponse.style.display = "none";
+				const verticalMenu = document.getElementById("verticalMenu");
+				verticalMenu.style.display = "none"; // 隐藏菜单
+			}
+		}
+	});
+
+	// 发送按钮点击事件
+	sendBtn.addEventListener("click", async () => {
+		const prompt = promptInput.value;
+		if (!prompt) return;
+		console.log("发送按钮点击了");
+		// 获取选中的文本
+		const selectedText = currentRange
+			? quill.getText(currentRange.index, currentRange.length)
+			: "";
+
+		// 显示AI响应区域
+		verticalMenu.style.display = "none";
+		aiResponse.style.display = "block";
+		const responseContent = aiResponse.querySelector(".response-content");
+		const copyBtn = document.getElementById("aiResponseCopyBtn");
+		const regenerateBtn = document.getElementById("aiResponseRegenerateBtn");
+
+		// 在生成回答时隐藏按钮组
+		actionButtons.style.display = "none";
+		responseContent.textContent = "正在生成回答...";
+
+		// 设置 AI 响应位置在输入框下方
+		const inputRect = floatingInput.getBoundingClientRect();
+		aiResponse.style.top = `${inputRect.bottom - 5}px`; // 5px 间距
+
+		// 模拟API调用延迟
+		setTimeout(() => {
+			responseContent.textContent = `选中的文本是：${selectedText}\nAI的回答：${prompt}`;
+			actionButtons.style.display = "flex"; // 显示整个按钮组
+		}, 1000);
+	});
+
+	// 修改内容插入函数
+	function insertContent(text, startIndex, isReplace = false) {
+		// 使用 replacementRange 而不是 currentRange
+		if (isReplace && replacementRange) {
+			quill.deleteText(replacementRange.index, replacementRange.length);
+			quill.insertText(replacementRange.index, text);
+		} else {
+			quill.insertText(startIndex, text);
+		}
+	}
+
+	// 修改插入内容的按钮点击事件
+	document.getElementById("insertAfter").addEventListener("click", () => {
+		// 使用 currentRange，因为这个操作不需要保存范围
+		if (currentRange) {
+			const responseContent = aiResponse.querySelector(".response-content");
+			if (responseContent) {
+				const fullText = responseContent.textContent;
+				// 提取 AI 回答部分，去掉"选中的文本是："这部分
+				const aiResponsePart = fullText.split("AI的回答：")[1];
+
+				if (aiResponsePart) {
+					const insertIndex = currentRange.index + currentRange.length;
+					// 在选中内容后面插入，添加一个空格和处理后的 AI 响应
+					insertContent(" " + aiResponsePart.trim(), insertIndex, false);
+
+					aiResponse.style.display = "none";
+					floatingInput.style.display = "none";
+					actionButtons.style.display = "none";
+				}
+			}
+		}
+		const length = quill.getLength();
+		quill.formatText(0, length, "background", false, "api");
+	});
+
+	// 添加一个变量来保存要替换的范围信息
+	let replacementRange = null;
+
+	// 修改 showDiffEditor 函数，保存替换范围
+	function showDiffEditor(originalText, modifiedText) {
+		// 保存当前范围用于后续替换
+		if (currentRange) {
+			replacementRange = { ...currentRange };
+		} else {
+			console.error("No selection range available");
+			return;
 		}
 
-		// 点击其他地方关闭导出菜单
-		document.addEventListener("click", function (e) {
-			const exportMenu = document.getElementById("exportMenu");
-			const exportButton = document.querySelector(".ql-export");
-			if (!exportMenu.contains(e.target) && !exportButton.contains(e.target)) {
-				exportMenu.style.display = "none";
-			}
+		const container = document.getElementById("diffContainer");
+		const editorElement = document.getElementById("diffEditor");
+		container.style.display = "flex";
+
+		// 如果编辑器已存在，先销毁它
+		if (diffEditor) {
+			diffEditor.dispose();
+			diffEditor = null;
+		}
+
+		// 创建新的对比编辑器实例，设置右侧可编辑
+		diffEditor = monaco.editor.createDiffEditor(editorElement, {
+			automaticLayout: true,
+			readOnly: false, // 允许编辑
+			theme: "vs-dark",
+			renderSideBySide: true,
+			scrollBeyondLastLine: false,
+			minimap: {
+				enabled: false,
+			},
+			originalEditable: false, // 左侧原文不可编辑
+			modifiedEditable: true, // 右侧新内容可编辑
 		});
 
-		// markdown导出功能
-		function exportToMarkdown() {
-			// 创建 TurndownService 实例
-			const turndownService = new TurndownService({
-				headingStyle: "atx",
-				codeBlock: "```",
-				emDelimiter: "_",
-			});
+		// 创建原始文本和修改后文本的模型
+		const originalModel = monaco.editor.createModel(originalText, "text/plain");
+		const modifiedModel = monaco.editor.createModel(
+			modifiedText,
+			"text/plain",
+			monaco.Uri.parse("modified.txt")
+		); // 给修改后的文本一个唯一的 URI
 
-			// 添加表格转换规则
-			turndownService.addRule("table", {
-				filter: "table",
-				replacement: function (content, node) {
-					// 处理表格内容
-					const rows = node.querySelectorAll("tr");
-					let markdownTable = "";
+		// 设置模型
+		diffEditor.setModel({
+			original: originalModel,
+			modified: modifiedModel,
+		});
 
-					// 处理表头
-					const headerRow = rows[0];
-					const headers = headerRow.querySelectorAll("th, td");
+		// 设置修改后内容的编辑器的一些特定配置
+		const modifiedEditor = diffEditor.getModifiedEditor();
+		modifiedEditor.updateOptions({
+			readOnly: false,
+			// 添加一些编辑友好的配置
+			lineNumbers: "on",
+			wordWrap: "on",
+			scrollBeyondLastLine: false,
+			minimap: { enabled: false },
+			folding: true,
+			fontSize: 14,
+			lineHeight: 20,
+			suggestOnTriggerCharacters: false, // 禁用自动补全
+		});
+
+		// 聚焦到可编辑区域
+		setTimeout(() => {
+			modifiedEditor.focus();
+		}, 100);
+	}
+
+	// 修改确认替换按钮事件
+	document.getElementById("confirmReplace").addEventListener("click", () => {
+		if (!diffEditor || !replacementRange) {
+			console.error("No diff editor or replacement range available");
+			return;
+		}
+
+		const modifiedText = diffEditor.getModifiedEditor().getValue();
+
+		// 使用保存的范围进行替换
+		insertContent(modifiedText, replacementRange.index, true);
+
+		// 清理状态
+		clearHighlight();
+		closeDiffEditor();
+	});
+
+	// 修改关闭对比编辑器函数
+	function closeDiffEditor() {
+		const container = document.getElementById("diffContainer");
+		container.style.display = "none";
+
+		if (diffEditor) {
+			try {
+				const models = diffEditor.getModel();
+				if (models) {
+					if (models.original) models.original.dispose();
+					if (models.modified) models.modified.dispose();
+				}
+				diffEditor.dispose();
+			} catch (error) {
+				console.error("Error disposing editor:", error);
+			}
+			diffEditor = null;
+		}
+
+		// 重置替换范围
+		replacementRange = null;
+	}
+
+	// 移除原有的点击事件监听器，改用新的逻辑
+	document.addEventListener("mouseup", (event) => {
+		// 延迟执行以确保selection-change事件先触发
+		setTimeout(() => {
+			const target = event.target;
+			const verticalMenu = document.getElementById("verticalMenu");
+			const isInVerticalMenu = verticalMenu.contains(target);
+			if (verticalMenu.contains(target)) return;
+			// 检查点击目标是否在允许的区域内
+			const isInFloatingInput = floatingInput.contains(target);
+			const isInEditor = quill.container.contains(target);
+			const hasSelection =
+				quill.getSelection() && quill.getSelection().length > 0;
+
+			// 如果点击在允许区域外，且不是在选择文本
+			if (!isInFloatingInput && !hasSelection && !isInVerticalMenu) {
+				console.log("selection-change的样式清除触发了");
+				floatingInput.style.display = "none";
+				aiResponse.style.display = "none";
+				actionButtons.style.display = "none";
+				verticalMenu.style.display = "none"; // 隐藏菜单
+				promptInput.value = "";
+				clearHighlight(); // 清除高亮
+				posCloseToBottom = false;
+			}
+		}, 0);
+	});
+
+	// 选中后的ai菜单项点击事件
+	document.querySelectorAll(".menu-item").forEach((item) => {
+		item.addEventListener("click", function (event) {
+			event.stopPropagation(); // 阻止事件冒泡
+			const actionText = this.textContent.trim();
+			promptInput.value = actionText;
+			// if (currentRange) {
+			// 	quill.setSelection(currentRange.index, currentRange.length);
+			// }
+			console.log("垂直菜单点击了");
+			sendBtn.click();
+		});
+	});
+
+	// 显示导出菜单
+	function showExportMenu() {
+		const exportMenu = document.getElementById("exportMenu");
+		const toolbarButton = document.querySelector(".ql-export");
+		const rect = toolbarButton.getBoundingClientRect();
+
+		exportMenu.style.display = "block";
+		exportMenu.style.top = `${rect.bottom + window.scrollY}px`;
+		exportMenu.style.left = `${rect.left}px`;
+	}
+
+	// 点击其他地方关闭导出菜单
+	document.addEventListener("click", function (e) {
+		const exportMenu = document.getElementById("exportMenu");
+		const exportButton = document.querySelector(".ql-export");
+		if (!exportMenu.contains(e.target) && !exportButton.contains(e.target)) {
+			exportMenu.style.display = "none";
+		}
+	});
+
+	// markdown导出功能
+	function exportToMarkdown() {
+		// 创建 TurndownService 实例
+		const turndownService = new TurndownService({
+			headingStyle: "atx",
+			codeBlock: "```",
+			emDelimiter: "_",
+		});
+
+		// 添加表格转换规则
+		turndownService.addRule("table", {
+			filter: "table",
+			replacement: function (content, node) {
+				// 处理表格内容
+				const rows = node.querySelectorAll("tr");
+				let markdownTable = "";
+
+				// 处理表头
+				const headerRow = rows[0];
+				const headers = headerRow.querySelectorAll("th, td");
+				markdownTable +=
+					"| " +
+					Array.from(headers)
+						.map((header) => turndownService.turndown(header.innerHTML.trim()))
+						.join(" | ") +
+					" |\n";
+
+				// 处理表头分隔线
+				markdownTable +=
+					"| " +
+					Array.from(headers)
+						.map(() => "---")
+						.join(" | ") +
+					" |\n";
+
+				// 处理表格数据行
+				for (let i = 1; i < rows.length; i++) {
+					const cells = rows[i].querySelectorAll("td");
 					markdownTable +=
 						"| " +
-						Array.from(headers)
-							.map((header) =>
-								turndownService.turndown(header.innerHTML.trim())
-							)
+						Array.from(cells)
+							.map((cell) => turndownService.turndown(cell.innerHTML.trim()))
 							.join(" | ") +
 						" |\n";
+				}
 
-					// 处理表头分隔线
-					markdownTable +=
-						"| " +
-						Array.from(headers)
-							.map(() => "---")
-							.join(" | ") +
-						" |\n";
+				return markdownTable;
+			},
+		});
 
-					// 处理表格数据行
-					for (let i = 1; i < rows.length; i++) {
-						const cells = rows[i].querySelectorAll("td");
-						markdownTable +=
-							"| " +
-							Array.from(cells)
-								.map((cell) => turndownService.turndown(cell.innerHTML.trim()))
-								.join(" | ") +
-							" |\n";
-					}
+		// 获取编辑器内容
+		const htmlContent = quill.root.innerHTML;
 
-					return markdownTable;
-				},
+		// 转换为 Markdown
+		const markdownContent = turndownService.turndown(htmlContent);
+		console.log("🚀 ~ exportToMarkdown ~ markdownContent:", markdownContent);
+
+		// 创建 Blob
+		const blob = new Blob([markdownContent], { type: "text/markdown" });
+
+		// 创建下载链接
+		const url = window.URL.createObjectURL(blob);
+		const a = document.createElement("a");
+		a.href = url;
+		a.download = "document.md";
+
+		// 触发下载
+		document.body.appendChild(a);
+		a.click();
+
+		// 清理
+		window.URL.revokeObjectURL(url);
+		document.body.removeChild(a);
+	}
+
+	// 添加导出功能
+	document.querySelectorAll(".export-menu-item").forEach((item) => {
+		item.addEventListener("click", function () {
+			const format = this.dataset.format;
+			switch (format) {
+				case "markdown":
+					exportToMarkdown();
+					break;
+				case "docx":
+					exportToWord();
+					break;
+				case "pdf":
+					exportToPDF();
+					break;
+			}
+			document.getElementById("exportMenu").style.display = "none";
+		});
+	});
+
+	// 更新 Word 导出功能
+	function htmlTableToDocxTable(htmlTable) {
+		const rows = [];
+		htmlTable.querySelectorAll("tr").forEach((tr) => {
+			const cells = [];
+			tr.querySelectorAll("th, td").forEach((td) => {
+				const paragraph = new docx.Paragraph({
+					children: [new docx.TextRun(td.textContent)],
+				});
+				cells.push(new docx.TableCell({ children: [paragraph] }));
 			});
 
-			// 获取编辑器内容
-			const htmlContent = quill.root.innerHTML;
+			// 设置行高
+			rows.push(
+				new docx.TableRow({
+					children: cells,
+					height: {
+						value: 800, // 行高值（单位为 dxa，1/20 磅）
+						rule: docx.HeightRule.ATLEAST, // 行高规则
+					},
+				})
+			);
+		});
 
-			// 转换为 Markdown
-			const markdownContent = turndownService.turndown(htmlContent);
-			console.log("🚀 ~ exportToMarkdown ~ markdownContent:", markdownContent);
+		// 设置表格宽度和列宽
+		return new docx.Table({
+			rows,
+			width: {
+				size: 100, // 表格宽度为 100%
+				type: docx.WidthType.PERCENTAGE,
+			},
+			columnWidths: [3000, 3000], // 每列宽度（单位为 dxa）
+		});
+	}
 
-			// 创建 Blob
-			const blob = new Blob([markdownContent], { type: "text/markdown" });
+	// 将 HTML 内容转换为 docx 段落
+	function htmlToDocxParagraphs(element) {
+		const paragraphs = [];
+		element.childNodes.forEach((node) => {
+			if (node.nodeType === Node.TEXT_NODE) {
+				// 处理文本节点
+				if (node.textContent.trim()) {
+					paragraphs.push(
+						new docx.Paragraph({
+							children: [new docx.TextRun(node.textContent)],
+						})
+					);
+				}
+			} else if (node.nodeType === Node.ELEMENT_NODE) {
+				// 处理元素节点
+				if (node.tagName === "P") {
+					// 段落
+					paragraphs.push(
+						new docx.Paragraph({
+							children: [new docx.TextRun(node.textContent)],
+						})
+					);
+				} else if (node.tagName === "TABLE") {
+					// 表格
+					paragraphs.push(htmlTableToDocxTable(node));
+				} else if (node.tagName === "STRONG" || node.tagName === "B") {
+					// 加粗文本
+					paragraphs.push(
+						new docx.Paragraph({
+							children: [
+								new docx.TextRun({ text: node.textContent, bold: true }),
+							],
+						})
+					);
+				} else if (node.tagName === "EM" || node.tagName === "I") {
+					// 斜体文本
+					paragraphs.push(
+						new docx.Paragraph({
+							children: [
+								new docx.TextRun({ text: node.textContent, italics: true }),
+							],
+						})
+					);
+				} else {
+					// 其他元素（如 div、span 等）
+					paragraphs.push(
+						new docx.Paragraph({
+							children: [new docx.TextRun(node.textContent)],
+						})
+					);
+				}
+			}
+		});
+		return paragraphs;
+	}
 
-			// 创建下载链接
+	// 导出为 Word 文档
+	async function exportToWord() {
+		try {
+			const element = quill.root; // 获取 Quill 的根 DOM 元素
+
+			// 将 HTML 内容转换为 docx 段落
+			const paragraphs = htmlToDocxParagraphs(element);
+
+			// 创建 Word 文档
+			const docDocument = new docx.Document({
+				sections: [
+					{
+						properties: {},
+						children: paragraphs, // 添加段落和表格
+					},
+				],
+			});
+
+			// 生成并下载 Word 文件
+			const blob = await docx.Packer.toBlob(docDocument);
 			const url = window.URL.createObjectURL(blob);
 			const a = document.createElement("a");
 			a.href = url;
-			a.download = "document.md";
-
-			// 触发下载
-			document.body.appendChild(a);
+			a.download = "export.docx";
 			a.click();
-
-			// 清理
 			window.URL.revokeObjectURL(url);
-			document.body.removeChild(a);
+		} catch (error) {
+			console.error("Export to Word failed:", error);
 		}
+	}
 
-		// 添加导出功能
-		document.querySelectorAll(".export-menu-item").forEach((item) => {
-			item.addEventListener("click", function () {
-				const format = this.dataset.format;
-				switch (format) {
-					case "markdown":
-						exportToMarkdown();
-						break;
-					case "docx":
-						exportToWord();
-						break;
-					case "pdf":
-						exportToPDF();
-						break;
-				}
-				document.getElementById("exportMenu").style.display = "none";
-			});
-		});
+	// PDF导出功能
+	function exportToPDF() {
+		const element = quill.root;
+		const opt = {
+			margin: 1,
+			filename: "document.pdf",
+			html2canvas: { scale: 2 },
+			jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+		};
 
-		// 更新 Word 导出功能
-		function htmlTableToDocxTable(htmlTable) {
-			const rows = [];
-			htmlTable.querySelectorAll("tr").forEach((tr) => {
-				const cells = [];
-				tr.querySelectorAll("th, td").forEach((td) => {
-					const paragraph = new docx.Paragraph({
-						children: [new docx.TextRun(td.textContent)],
-					});
-					cells.push(new docx.TableCell({ children: [paragraph] }));
-				});
+		html2pdf().set(opt).from(element).save();
+	}
 
-				// 设置行高
-				rows.push(
-					new docx.TableRow({
-						children: cells,
-						height: {
-							value: 800, // 行高值（单位为 dxa，1/20 磅）
-							rule: docx.HeightRule.ATLEAST, // 行高规则
-						},
-					})
-				);
-			});
+	// 修改 Markdown 渲染功能
+	function renderMarkdown(markdownText) {
+		try {
+			const md = window
+				.markdownit({
+					html: true,
+					breaks: true,
+					linkify: true,
+				})
+				.use(function (md) {
+					// 自定义表格和代码块渲染
+					// 完全覆盖表格渲染规则
+					md.renderer.rules.table_open = () => "<table><tbody>";
+					md.renderer.rules.table_close = () => "</tbody></table>";
+					md.renderer.rules.tr_open = () => "<tr>";
+					md.renderer.rules.th_open = () => '<td data-header="true">'; // 用 td 但标记为 header
 
-			// 设置表格宽度和列宽
-			return new docx.Table({
-				rows,
-				width: {
-					size: 100, // 表格宽度为 100%
-					type: docx.WidthType.PERCENTAGE,
-				},
-				columnWidths: [3000, 3000], // 每列宽度（单位为 dxa）
-			});
-		}
-
-		// 将 HTML 内容转换为 docx 段落
-		function htmlToDocxParagraphs(element) {
-			const paragraphs = [];
-			element.childNodes.forEach((node) => {
-				if (node.nodeType === Node.TEXT_NODE) {
-					// 处理文本节点
-					if (node.textContent.trim()) {
-						paragraphs.push(
-							new docx.Paragraph({
-								children: [new docx.TextRun(node.textContent)],
-							})
-						);
-					}
-				} else if (node.nodeType === Node.ELEMENT_NODE) {
-					// 处理元素节点
-					if (node.tagName === "P") {
-						// 段落
-						paragraphs.push(
-							new docx.Paragraph({
-								children: [new docx.TextRun(node.textContent)],
-							})
-						);
-					} else if (node.tagName === "TABLE") {
-						// 表格
-						paragraphs.push(htmlTableToDocxTable(node));
-					} else if (node.tagName === "STRONG" || node.tagName === "B") {
-						// 加粗文本
-						paragraphs.push(
-							new docx.Paragraph({
-								children: [
-									new docx.TextRun({ text: node.textContent, bold: true }),
-								],
-							})
-						);
-					} else if (node.tagName === "EM" || node.tagName === "I") {
-						// 斜体文本
-						paragraphs.push(
-							new docx.Paragraph({
-								children: [
-									new docx.TextRun({ text: node.textContent, italics: true }),
-								],
-							})
-						);
-					} else {
-						// 其他元素（如 div、span 等）
-						paragraphs.push(
-							new docx.Paragraph({
-								children: [new docx.TextRun(node.textContent)],
-							})
-						);
-					}
-				}
-			});
-			return paragraphs;
-		}
-
-		// 导出为 Word 文档
-		async function exportToWord() {
-			try {
-				const element = quill.root; // 获取 Quill 的根 DOM 元素
-
-				// 将 HTML 内容转换为 docx 段落
-				const paragraphs = htmlToDocxParagraphs(element);
-
-				// 创建 Word 文档
-				const docDocument = new docx.Document({
-					sections: [
-						{
-							properties: {},
-							children: paragraphs, // 添加段落和表格
-						},
-					],
-				});
-
-				// 生成并下载 Word 文件
-				const blob = await docx.Packer.toBlob(docDocument);
-				const url = window.URL.createObjectURL(blob);
-				const a = document.createElement("a");
-				a.href = url;
-				a.download = "export.docx";
-				a.click();
-				window.URL.revokeObjectURL(url);
-			} catch (error) {
-				console.error("Export to Word failed:", error);
-			}
-		}
-
-		// PDF导出功能
-		function exportToPDF() {
-			const element = quill.root;
-			const opt = {
-				margin: 1,
-				filename: "document.pdf",
-				html2canvas: { scale: 2 },
-				jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
-			};
-
-			html2pdf().set(opt).from(element).save();
-		}
-
-		// 修改 Markdown 渲染功能
-		function renderMarkdown(markdownText) {
-			try {
-				const md = window
-					.markdownit({
-						html: true,
-						breaks: true,
-						linkify: true,
-					})
-					.use(function (md) {
-						// 自定义表格和代码块渲染
-						// 完全覆盖表格渲染规则
-						md.renderer.rules.table_open = () => "<table><tbody>";
-						md.renderer.rules.table_close = () => "</tbody></table>";
-						md.renderer.rules.tr_open = () => "<tr>";
-						md.renderer.rules.th_open = () => '<td data-header="true">'; // 用 td 但标记为 header
-
-						// 修改代码块渲染规则（code_block 和 fence）
-						md.renderer.rules.code_block = function (tokens, idx) {
-							//代码块的格式支持
-							/* return (
+					// 修改代码块渲染规则（code_block 和 fence）
+					md.renderer.rules.code_block = function (tokens, idx) {
+						//代码块的格式支持
+						/* return (
 							// "<pre><code>" +
 							md.utils.escapeHtml(tokens[idx].content) + "\n"
 							// "</code></pre>\n"
 						); */
-							return md.utils.escapeHtml(tokens[idx].content) + "\n";
-						};
+						return md.utils.escapeHtml(tokens[idx].content) + "\n";
+					};
 
-						md.renderer.rules.fence = function (tokens, idx) {
-							return md.utils.escapeHtml(tokens[idx].content) + "\n";
-						};
-					});
+					md.renderer.rules.fence = function (tokens, idx) {
+						return md.utils.escapeHtml(tokens[idx].content) + "\n";
+					};
+				});
 
-				const html = md
-					.render(markdownText)
-					.replace(/<th>/g, '<td data-header="true">') // 替换 th 为标记的 td
-					.replace(/<\/th>/g, "</td>");
-				console.log("🚀 ~ renderMarkdown ~ html:", html);
-				// 获取当前光标位置
-				const currentSelection = quill.getSelection();
-				let cursorPosition = currentSelection
-					? currentSelection.index
-					: quill.getLength();
+			const html = md
+				.render(markdownText)
+				.replace(/<th>/g, '<td data-header="true">') // 替换 th 为标记的 td
+				.replace(/<\/th>/g, "</td>");
+			console.log("🚀 ~ renderMarkdown ~ html:", html);
+			// 获取当前光标位置
+			const currentSelection = quill.getSelection();
+			let cursorPosition = currentSelection
+				? currentSelection.index
+				: quill.getLength();
 
-				// 在光标位置插入 HTML
-				quill.clipboard.dangerouslyPasteHTML(cursorPosition, html);
+			// 在光标位置插入 HTML
+			quill.clipboard.dangerouslyPasteHTML(cursorPosition, html);
 
-				// 计算新光标位置（插入内容的长度）
-				const delta = quill.clipboard.convert(html);
-				const insertedLength = delta.reduce(
-					(acc, op) => acc + (op.insert ? op.insert.length || 1 : 0),
-					0
-				);
+			// 计算新光标位置（插入内容的长度）
+			const delta = quill.clipboard.convert(html);
+			const insertedLength = delta.reduce(
+				(acc, op) => acc + (op.insert ? op.insert.length || 1 : 0),
+				0
+			);
 
-				// 移动光标到插入内容末尾
-				quill.setSelection(cursorPosition + insertedLength, 0);
-			} catch (error) {
-				console.error("Markdown rendering failed:", error);
-			}
+			// 移动光标到插入内容末尾
+			quill.setSelection(cursorPosition + insertedLength, 0);
+		} catch (error) {
+			console.error("Markdown rendering failed:", error);
 		}
+	}
 
-		// 测试用的 Markdown 文本
-		const testMarkdown = `# 这是一个标题
+	// 测试用的 Markdown 文本
+	const testMarkdown = `# 这是一个标题
 
 			这是一段普通文本，包含**粗体**和*斜体*。
 
@@ -1429,138 +1387,135 @@
 			| A2  | B2  | C2  |
 			`;
 
-		// 测试渲染函数
-		function testMarkdownRender() {
-			renderMarkdown(testMarkdown);
+	// 测试渲染函数
+	function testMarkdownRender() {
+		renderMarkdown(testMarkdown);
+	}
+
+	// 修改 Monaco Editor 的初始化配置
+	require.config({
+		paths: {
+			vs: "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs",
+		},
+	});
+
+	// 初始化时预加载 Monaco Editor
+	require(["vs/editor/editor.main"], function () {
+		monacoLoaded = true;
+		console.log("Monaco Editor loaded successfully");
+	});
+
+	// 添加全局变量
+	let diffEditor = null;
+	let monacoLoaded = false;
+
+	// 修复替换按钮的点击事件处理
+	document.getElementById("replace").addEventListener("click", () => {
+		if (!monacoLoaded) {
+			console.log("Monaco Editor is still loading...");
+			return;
 		}
 
-		// 修改 Monaco Editor 的初始化配置
-		require.config({
-			paths: {
-				vs: "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs",
-			},
-		});
+		const selectedText = currentRange
+			? quill.getText(currentRange.index, currentRange.length)
+			: "";
 
-		// 初始化时预加载 Monaco Editor
-		require(["vs/editor/editor.main"], function () {
-			monacoLoaded = true;
-			console.log("Monaco Editor loaded successfully");
-		});
+		// 从 AI 响应内容中提取实际的回答部分
+		const aiResponseText =
+			aiResponse.querySelector(".response-content").textContent;
+		const actualResponse = aiResponseText.split("AI的回答：")[1]; // 获取 AI 回答部分
 
-		// 添加全局变量
-		let diffEditor = null;
-		let monacoLoaded = false;
-
-		// 修复替换按钮的点击事件处理
-		document.getElementById("replace").addEventListener("click", () => {
-			if (!monacoLoaded) {
-				console.log("Monaco Editor is still loading...");
-				return;
-			}
-
-			const selectedText = currentRange
-				? quill.getText(currentRange.index, currentRange.length)
-				: "";
-
-			// 从 AI 响应内容中提取实际的回答部分
-			const aiResponseText =
-				aiResponse.querySelector(".response-content").textContent;
-			const actualResponse = aiResponseText.split("AI的回答：")[1]; // 获取 AI 回答部分
-
-			// 确保有选中的文本和 AI 的回答
-			if (!selectedText || !actualResponse) {
-				console.log("No selected text or AI response");
-				return;
-			}
-
-			showDiffEditor(selectedText, actualResponse);
-		});
-
-		// 取消按钮点击事件
-		document.getElementById("cancelReplace").addEventListener("click", () => {
-			// 1. 关闭对比编辑器浮层
-			closeDiffEditor();
-
-			// 2. 清除文本高亮
-			clearHighlight();
-
-			// 3. 隐藏浮动输入框和AI响应
-			floatingInput.style.display = "none";
-			aiResponse.style.display = "none";
-			actionButtons.style.display = "none";
-
-			// 4. 重置输入框内容
-			promptInput.value = "";
-
-			// 5. 重置其他状态
-			currentRange = null;
-			posCloseToBottom = false;
-		});
-
-		// 添加复制 AI 响应内容的函数
-		function copyAiResponse() {
-			const responseContent =
-				aiResponse.querySelector(".response-content").textContent;
-
-			if (responseContent) {
-				navigator.clipboard.writeText(responseContent).then(() => {
-					const copyBtn = document.getElementById("aiResponseCopyBtn");
-					const originalText = copyBtn.innerHTML;
-
-					// 显示复制成功提示
-					copyBtn.innerHTML = '<i class="fas fa-check"></i> 已复制';
-
-					// 2秒后恢复原始文本
-					setTimeout(() => {
-						copyBtn.innerHTML = originalText;
-					}, 2000);
-				});
-			}
+		// 确保有选中的文本和 AI 的回答
+		if (!selectedText || !actualResponse) {
+			console.log("No selected text or AI response");
+			return;
 		}
 
-		// 添加复制按钮点击事件
-		document
-			.getElementById("aiResponseCopyBtn")
-			.addEventListener("click", copyAiResponse);
+		showDiffEditor(selectedText, actualResponse);
+	});
 
-		// 添加重新生成按钮点击事件
-		document
-			.getElementById("aiResponseRegenerateBtn")
-			.addEventListener("click", function () {
-				// 获取当前的 prompt
-				const prompt = promptInput.value;
-				if (!prompt) return;
+	// 取消按钮点击事件
+	document.getElementById("cancelReplace").addEventListener("click", () => {
+		// 1. 关闭对比编辑器浮层
+		closeDiffEditor();
 
-				// 显示生成中状态
-				const responseContent = aiResponse.querySelector(".response-content");
+		// 2. 清除文本高亮
+		clearHighlight();
+
+		// 3. 隐藏浮动输入框和AI响应
+		floatingInput.style.display = "none";
+		aiResponse.style.display = "none";
+		actionButtons.style.display = "none";
+
+		// 4. 重置输入框内容
+		promptInput.value = "";
+
+		// 5. 重置其他状态
+		currentRange = null;
+		posCloseToBottom = false;
+	});
+
+	// 添加复制 AI 响应内容的函数
+	function copyAiResponse() {
+		const responseContent =
+			aiResponse.querySelector(".response-content").textContent;
+
+		if (responseContent) {
+			navigator.clipboard.writeText(responseContent).then(() => {
 				const copyBtn = document.getElementById("aiResponseCopyBtn");
-				const regenerateBtn = document.getElementById(
-					"aiResponseRegenerateBtn"
-				);
+				const originalText = copyBtn.innerHTML;
 
-				copyBtn.style.display = "none";
-				regenerateBtn.style.display = "none";
-				responseContent.textContent = "正在重新生成...";
+				// 显示复制成功提示
+				copyBtn.innerHTML = '<i class="fas fa-check"></i> 已复制';
 
-				// 模拟API调用
+				// 2秒后恢复原始文本
 				setTimeout(() => {
-					responseContent.textContent = `重新生成的内容：${prompt} (${new Date().toLocaleTimeString()})`;
-					copyBtn.style.display = "flex";
-					regenerateBtn.style.display = "flex";
-				}, 1000);
+					copyBtn.innerHTML = originalText;
+				}, 2000);
 			});
-
-		// 添加到重置状态的函数中
-		function resetEditorState() {
-			clearHighlight();
-			currentRange = null;
-			floatingInput.style.display = "none";
-			aiResponse.style.display = "none";
-			actionButtons.style.display = "none";
-			document.getElementById("aiResponseCopyBtn").style.display = "none"; // 隐藏复制按钮
-			document.getElementById("aiResponseRegenerateBtn").style.display = "none"; // 隐藏重新生成按钮
-			promptInput.value = "";
-			posCloseToBottom = false;
 		}
-	</script>
-</button>
+	}
+
+	// 添加复制按钮点击事件
+	document
+		.getElementById("aiResponseCopyBtn")
+		.addEventListener("click", copyAiResponse);
+
+	// 添加重新生成按钮点击事件
+	document
+		.getElementById("aiResponseRegenerateBtn")
+		.addEventListener("click", function () {
+			// 获取当前的 prompt
+			const prompt = promptInput.value;
+			if (!prompt) return;
+
+			// 显示生成中状态
+			const responseContent = aiResponse.querySelector(".response-content");
+			const copyBtn = document.getElementById("aiResponseCopyBtn");
+			const regenerateBtn = document.getElementById("aiResponseRegenerateBtn");
+
+			copyBtn.style.display = "none";
+			regenerateBtn.style.display = "none";
+			responseContent.textContent = "正在重新生成...";
+
+			// 模拟API调用
+			setTimeout(() => {
+				responseContent.textContent = `重新生成的内容：${prompt} (${new Date().toLocaleTimeString()})`;
+				copyBtn.style.display = "flex";
+				regenerateBtn.style.display = "flex";
+			}, 1000);
+		});
+
+	// 添加到重置状态的函数中
+	function resetEditorState() {
+		clearHighlight();
+		currentRange = null;
+		floatingInput.style.display = "none";
+		aiResponse.style.display = "none";
+		actionButtons.style.display = "none";
+		document.getElementById("aiResponseCopyBtn").style.display = "none"; // 隐藏复制按钮
+		document.getElementById("aiResponseRegenerateBtn").style.display = "none"; // 隐藏重新生成按钮
+		promptInput.value = "";
+		posCloseToBottom = false;
+	}
+</script>
