@@ -768,7 +768,7 @@
 		 * 通过发布订阅模式，在选中文本时quill内部emit对应的时间名的回调
 		 */
 		quill.on("selection-change", function (range, oldRange, source) {
-			console.log("🚀 ~ range:", range);
+			// console.log("🚀 ~ range:", range);
 			if (range && range.length > 0) {
 				//选中内容后，继续选中新的内容时，清除之前选中内容的高亮
 				if (currentRange) clearHighlight();
@@ -816,10 +816,6 @@
 					topPosition + dimensions.floatingInput + dimensions.verticalMenu >
 					dimensions.window
 				) {
-					console.log("选中内容的高度:", bounds.height);
-					console.log("选中内容的顶部位置:", bounds.top);
-					console.log("选中内容的底部位置:", bounds.top + bounds.height);
-					console.log(1);
 					// 向上布局模式
 					floatingInput.style.top = `${
 						topPosition - dimensions.floatingInput - bounds.height - 10
