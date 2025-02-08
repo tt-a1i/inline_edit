@@ -709,8 +709,8 @@
 		}
 		updateWordCountDisplay();
 		updateCreationTimeDisplay();
+		checkEmptyLine();
 	});
-
 	function copyContentToClipboardAsText() {
 		const content = quill.getText(); // 使用 getText() 获取纯文本内容
 		navigator.clipboard
@@ -722,6 +722,89 @@
 				console.error("复制内容失败: ", err);
 				// alert("复制内容失败，请重试。");
 			});
+	}
+	// 添加键盘事件监听
+	quill.root.addEventListener("keydown", function (e) {
+		if (e.key === "/") {
+			const selection = quill.getSelection();
+			if (!selection) return;
+
+			const [line, offset] = quill.getLine(selection.index);
+			const text = line.domNode.textContent;
+
+			// 检查是否在空行
+			if (!text.trim()) {
+				e.preventDefault(); // 阻止/字符的输入
+				showAIMenu(line);
+			}
+		}
+	});
+
+	// 添加空行检测函数
+	function checkEmptyLine() {
+		const selection = quill.getSelection();
+		if (!selection) return;
+
+		const [line, offset] = quill.getLine(selection.index);
+		const text = line.domNode.textContent;
+
+		// 如果不是空行，隐藏AI相关UI
+		if (text.trim()) {
+			hideAIUI();
+		}
+	}
+
+	// 显示AI菜单函数
+	function showAIMenu(line) {
+		const bounds = quill.getBounds(quill.getSelection().index);
+		const editorRect = quill.container.getBoundingClientRect();
+		const editorContentRect = quill.root.getBoundingClientRect();
+
+		// 设置浮动输入框和垂直菜单的位置
+		floatingInput.style.display = "block";
+		verticalMenu.style.display = "block";
+
+		const leftPosition = editorContentRect.left;
+		const topPosition = editorRect.top + bounds.bottom + 5;
+
+		// 统一左对齐
+		[floatingInput, verticalMenu].forEach((element) => {
+			element.style.left = `${leftPosition}px`;
+			element.style.position = "fixed";
+		});
+
+		// 设置垂直位置
+		floatingInput.style.top = `${topPosition}px`;
+		verticalMenu.style.top = `${
+			topPosition + floatingInput.offsetHeight + 5
+		}px`;
+
+		// 监听点击事件
+		setTimeout(() => {
+			document.addEventListener("click", handleOutsideClick);
+		}, 0);
+	}
+
+	// 隐藏AI相关UI函数
+	function hideAIUI() {
+		floatingInput.style.display = "none";
+		verticalMenu.style.display = "none";
+		aiResponse.style.display = "none";
+		actionButtons.style.display = "none";
+		promptInput.value = "";
+	}
+
+	// 处理外部点击事件
+	function handleOutsideClick(event) {
+		const isClickInside =
+			floatingInput.contains(event.target) ||
+			verticalMenu.contains(event.target) ||
+			event.target.closest(".ql-editor");
+
+		if (!isClickInside) {
+			hideAIUI();
+			document.removeEventListener("click", handleOutsideClick);
+		}
 	}
 
 	/**
