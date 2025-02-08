@@ -912,18 +912,27 @@
 
 		// 修改插入内容的按钮点击事件
 		document.getElementById("insertAfter").addEventListener("click", () => {
-			// 使用 replacementRange 代替 currentRange
-			if (replacementRange && aiResponse.querySelector(".response-content")) {
-				const aiResponseText =
-					aiResponse.querySelector(".response-content").textContent;
-				const actualResponse =
-					aiResponseText.split("AI的回答：")[1] || aiResponseText;
-				const insertIndex = replacementRange.index + replacementRange.length;
+			// 使用 currentRange，因为这个操作不需要保存范围
+			if (currentRange) {
+				const responseContent = aiResponse.querySelector(".response-content");
+				if (responseContent) {
+					const fullText = responseContent.textContent;
+					// 提取 AI 回答部分，去掉"选中的文本是："这部分
+					const aiResponsePart = fullText.split("AI的回答：")[1];
 
-				insertContent(" " + actualResponse.trim(), insertIndex, false);
-				clearHighlight();
-				closeDiffEditor();
+					if (aiResponsePart) {
+						const insertIndex = currentRange.index + currentRange.length;
+						// 在选中内容后面插入，添加一个空格和处理后的 AI 响应
+						insertContent(" " + aiResponsePart.trim(), insertIndex, false);
+
+						aiResponse.style.display = "none";
+						floatingInput.style.display = "none";
+						actionButtons.style.display = "none";
+					}
+				}
 			}
+			const length = quill.getLength();
+			quill.formatText(0, length, "background", false, "api");
 		});
 
 		// 添加一个变量来保存要替换的范围信息
