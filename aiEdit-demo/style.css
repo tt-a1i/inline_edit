@@ -1,0 +1,406 @@
+/* flex 布局，新按钮会被放置在末尾 */
+.ql-toolbar {
+	display: flex;
+	justify-content: flex-start; /* 确保按钮按照顺序排列 */
+	flex-wrap: wrap;
+}
+
+.editor-container {
+	max-width: 900px;
+	margin: 0 auto;
+	padding: 20px;
+	background-color: #f9fafd;
+	min-height: 100vh;
+}
+.ql-editor {
+	font-size: 16px;
+}
+.ql-toolbar {
+	position: sticky;
+	top: 0;
+	z-index: 10;
+	background-color: #f0f0f0;
+}
+.ql-container .ql-editor::selection,
+.ql-container .ql-editor *::selection {
+	background-color: #b4d5fe;
+}
+
+.floating-input {
+	position: fixed;
+	display: none;
+	background: white;
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+	border-radius: 8px;
+	padding: 10px;
+	/* 移除固定宽度，宽度由JS动态计算 */
+	z-index: 9999;
+	width: auto;
+}
+
+.input-container {
+	display: flex;
+	gap: 8px;
+	margin-bottom: 10px;
+}
+
+.input-container input {
+	flex: 1;
+	padding: 8px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+}
+
+.send-btn {
+	background: #409eff;
+	border: none;
+	border-radius: 8px;
+	padding: 8px 16px;
+	color: white;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	transition: all 0.3s ease;
+	font-size: 14px;
+}
+
+.send-btn:hover {
+	background: #66b1ff;
+	transform: translateY(-1px);
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.send-btn:active {
+	transform: translateY(0);
+	box-shadow: none;
+}
+
+.send-btn i {
+	font-size: 14px;
+}
+
+.ai-response {
+	background: #f8f9fa;
+	padding: 15px;
+	border-radius: 8px;
+	margin-top: 10px;
+	display: none;
+	border: 1px solid #e9ecef;
+	font-size: 14px;
+	line-height: 1.6;
+	color: #495057;
+	position: relative;
+}
+
+.action-buttons {
+	display: none;
+	margin-top: 12px;
+	padding-top: 12px;
+	border-top: 1px solid #e9ecef;
+}
+
+.action-buttons {
+	display: none;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.left-buttons,
+.right-buttons {
+	display: flex;
+	gap: 8px;
+}
+
+.action-buttons button {
+	padding: 6px 12px;
+	border: 1px solid #ddd;
+	border-radius: 6px;
+	cursor: pointer;
+	background: #fff;
+	color: #409eff;
+	font-size: 13px;
+	transition: all 0.3s ease;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.action-buttons button:hover {
+	background: #ecf5ff;
+	border-color: #409eff;
+}
+
+.action-buttons button i {
+	font-size: 12px;
+}
+
+.highlight-selection {
+	background-color: #b4d5fe !important;
+}
+
+/* 添加垂直菜单样式 */
+.vertical-menu {
+	position: fixed;
+	display: none;
+	background: white;
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+	border-radius: 8px;
+	/* 移除固定宽度，宽度由JS动态计算 */
+	width: 300px;
+	z-index: 9998;
+}
+
+.menu-item {
+	padding: 10px 15px;
+	cursor: pointer;
+	transition: background-color 0.2s;
+}
+
+.menu-item:hover {
+	background-color: #f5f5f5;
+}
+
+.menu-item + .menu-item {
+	border-top: 1px solid #eee;
+}
+
+.ql-customButton::before {
+	font-family: "Font Awesome 5 Free";
+	content: "\f1c5"; /* 表格图标的 Unicode */
+	margin-right: 8px;
+}
+
+.ql-exportMd::before {
+	font-family: "Font Awesome 5 Free";
+	content: "\f56d"; /* Markdown icon */
+	margin-right: 8px;
+}
+
+.export-menu {
+	position: absolute;
+	display: none;
+	background: white;
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+	border-radius: 4px;
+	z-index: 1000;
+}
+
+.export-menu-item {
+	padding: 8px 16px;
+	cursor: pointer;
+	white-space: nowrap;
+}
+
+.export-menu-item:hover {
+	background-color: #f5f5f5;
+}
+
+.export-menu-item + .export-menu-item {
+	border-top: 1px solid #eee;
+}
+
+/* 添加导出按钮样式 */
+.ql-export {
+	position: relative;
+	width: 28px;
+	height: 24px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.ql-export::before {
+	font-family: "Font Awesome 5 Free";
+	content: "\f56e"; /* 导出图标的 Unicode */
+	font-weight: 900;
+	font-size: 14px;
+}
+
+/* 可选：添加悬停效果 */
+.ql-export:hover {
+	color: #06c;
+}
+
+/* 修改表格按钮样式 */
+.ql-table {
+	position: relative;
+	width: 28px;
+	height: 24px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.ql-table:hover {
+	color: #06c;
+}
+
+/* 测试按钮样式 */
+.test-markdown-btn {
+	position: fixed;
+	bottom: 20px;
+	right: 20px;
+	padding: 10px 20px;
+	background: #409eff;
+	color: white;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	z-index: 1000;
+}
+
+.test-markdown-btn:hover {
+	background: #66b1ff;
+}
+
+/* 添加编辑器背景色 */
+.ql-container.ql-snow {
+	background-color: #ffffff;
+	border-radius: 0 0 4px 4px;
+}
+
+.ql-toolbar.ql-snow {
+	border-radius: 4px 4px 0 0;
+	background-color: #ffffff;
+}
+
+/* 添加body背景色 */
+body {
+	margin: 0;
+	padding: 0;
+	background-color: #f9fafd;
+}
+
+/* 添加撤销重做按钮样式 */
+.ql-undo,
+.ql-redo {
+	position: relative;
+	width: 28px;
+	height: 24px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.ql-undo::before {
+	font-family: "Font Awesome 5 Free";
+	content: "\f0e2"; /* undo 图标 */
+	font-weight: 900;
+	font-size: 14px;
+}
+
+.ql-redo::before {
+	font-family: "Font Awesome 5 Free";
+	content: "\f01e"; /* redo 图标 */
+	font-weight: 900;
+	font-size: 14px;
+}
+
+.ql-undo:hover,
+.ql-redo:hover {
+	color: #06c;
+}
+.ql-editor td[data-header="true"] {
+	font-weight: bold;
+	background: #f3f4f6;
+}
+
+/* 添加对比编辑器样式 */
+#diffContainer {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.5);
+	z-index: 9999;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+#diffWrapper {
+	width: 90%;
+	height: 80%;
+	background: #1e1e1e;
+	border-radius: 8px;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}
+
+#diffEditor {
+	flex: 1;
+}
+
+.diff-actions {
+	padding: 16px;
+	display: flex;
+	justify-content: flex-end;
+	gap: 12px;
+	background: #252526;
+}
+
+.diff-btn {
+	padding: 8px 16px;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 14px;
+	transition: all 0.2s;
+}
+
+.diff-btn.confirm {
+	background: #0078d4;
+	color: white;
+}
+
+.diff-btn.confirm:hover {
+	background: #106ebe;
+}
+
+.diff-btn.cancel {
+	background: #4c4c4c;
+	color: white;
+}
+
+.diff-btn.cancel:hover {
+	background: #3c3c3c;
+}
+/* 添加复制按钮样式 */
+.ql-copy-content {
+	position: relative;
+	width: 28px;
+	height: 24px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.ql-copy-content::before {
+	font-family: "Font Awesome 5 Free";
+	content: "\f0c5"; /* Copy icon from Font Awesome */
+	font-weight: 900;
+	font-size: 14px;
+}
+
+.ql-copy-content:hover {
+	color: #06c;
+}
+/* 添加创建时间和字数统计样式 */
+.ql-creation-time,
+.ql-word-count {
+	display: inline-block; /* 使其在工具栏中水平排列 */
+	margin-right: 15px; /*  设置与后面工具栏按钮的间距 */
+	font-size: 14px; /* 调整字体大小 */
+	color: #777; /*  设置颜色，可以根据你的主题调整 */
+	line-height: 24px; /*  与工具栏按钮垂直对齐 */
+}
+
+/* 添加 AI 响应复制按钮样式 */
+.ai-response-copy-btn,
+.ai-response-regenerate-btn,
+.ai-response-header {
+	display: none;
+}
